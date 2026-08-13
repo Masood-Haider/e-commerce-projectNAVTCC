@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA | Modern Minimalist Lifestyle & Apparel</title>
+  <meta name="description" content="Clean, curated, and premium lifestyle essentials crafted with precision. Discover minimal apparel, footwear, and accessories.">
+  <link rel="stylesheet" href="../css/customer.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       GLOBAL NAVBAR
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="container header-container">
+      
+      <div class="header-left">
+        <!-- Logo -->
+        <a href="index.html" class="brand-logo" id="header-brand-logo">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span>AURA</span>
+        </a>
+
+        <!-- Desktop Navigation Menu -->
+        <nav class="nav-menu" aria-label="Main Navigation">
+          <a href="index.html" class="nav-link active">Home</a>
+          <a href="products.html" class="nav-link">Products</a>
+          
+          <!-- Categories Dropdown -->
+          <div class="nav-item-dropdown">
+            <a href="products.html" class="nav-link flex items-center gap-1">
+              <span>Categories</span>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </a>
+            <div class="nav-dropdown-menu">
+              <a href="products.html?category=apparel" class="nav-dropdown-item">Apparel</a>
+              <a href="products.html?category=footwear" class="nav-dropdown-item">Footwear</a>
+              <a href="products.html?category=accessories" class="nav-dropdown-item">Accessories</a>
+              <a href="products.html?category=carry" class="nav-dropdown-item">Carry & Bags</a>
+            </div>
+          </div>
+
+          <a href="products.html?filter=new" class="nav-link">New Arrivals</a>
+        </nav>
+      </div>
+
+      <!-- Header Search Input -->
+      <form class="header-search-form" id="header-search-form" action="products.html" method="GET">
+        <svg class="header-search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input 
+          type="search" 
+          name="q" 
+          id="global-search-input" 
+          class="header-search-input" 
+          placeholder="Search products..." 
+          autocomplete="off"
+        >
+      </form>
+
+      <!-- Header Action Items -->
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm" id="nav-account-link">Account</a>
+        
+        <!-- Cart Button with Dynamic Badge -->
+        <a href="cart.html" class="cart-button" id="nav-cart-btn" aria-label="Shopping Cart">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span class="cart-badge" id="cart-count-badge">0</span>
+        </a>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button class="mobile-nav-toggle" id="mobile-toggle-btn" aria-label="Toggle Menu">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div class="mobile-menu-drawer" id="mobile-drawer">
+      <form action="products.html" method="GET" class="w-full mb-2">
+        <input type="search" name="q" placeholder="Search products..." class="form-control text-sm">
+      </form>
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="products.html" class="nav-link">All Products</a>
+      <a href="products.html?category=apparel" class="nav-link">&mdash; Apparel</a>
+      <a href="products.html?category=footwear" class="nav-link">&mdash; Footwear</a>
+      <a href="products.html?category=accessories" class="nav-link">&mdash; Accessories</a>
+      <a href="products.html?category=carry" class="nav-link">&mdash; Carry & Bags</a>
+      <a href="login.html" class="nav-link">Account & Login</a>
+      <a href="../admin/dashboard.html" class="btn btn-outline btn-sm mt-2">Admin Portal</a>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       HERO / BANNER SECTION
+       ========================================================================== -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        
+        <div class="hero-content">
+          <span class="badge badge-neutral hero-tag">Autumn / Winter 2026</span>
+          <h1 class="hero-title">Timeless essentials engineered for modern clarity.</h1>
+          <p class="hero-description">
+            Thoughtfully crafted apparel, durable footwear, and precision accessories designed with minimal silhouettes and sustainable materials.
+          </p>
+          <div class="hero-actions">
+            <a href="products.html" class="btn btn-primary btn-lg" id="hero-cta-shop">Shop Collection &rarr;</a>
+            <a href="products.html?filter=featured" class="btn btn-outline btn-lg">Explore Featured</a>
+          </div>
+        </div>
+
+        <div class="hero-media-wrapper">
+          <img src="../assets/hero_banner.png" alt="AURA Minimalist Collection" loading="eager">
+          <div class="hero-floating-badge">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: var(--color-success);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Handcrafted in Limited Batches</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       VALUE PROPOSITIONS BAR
+       ========================================================================== -->
+  <section class="value-props-bar">
+    <div class="container">
+      <div class="value-props-grid">
+        
+        <div class="value-prop-item">
+          <div class="value-prop-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="value-prop-title">Complimentary Shipping</h2>
+            <p class="value-prop-desc">Carbon-neutral delivery on all orders over $100.</p>
+          </div>
+        </div>
+
+        <div class="value-prop-item">
+          <div class="value-prop-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="value-prop-title">Ethically Sourced</h2>
+            <p class="value-prop-desc">100% certified organic and recycled raw fibers.</p>
+          </div>
+        </div>
+
+        <div class="value-prop-item">
+          <div class="value-prop-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="value-prop-title">30-Day Free Returns</h2>
+            <p class="value-prop-desc">Effortless exchanges and full refunds guaranteed.</p>
+          </div>
+        </div>
+
+        <div class="value-prop-item">
+          <div class="value-prop-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="value-prop-title">Lifetime Durability</h2>
+            <p class="value-prop-desc">Reinforced construction built for everyday longevity.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       CATEGORIES / PROMOTIONAL SHOWCASE
+       ========================================================================== -->
+  <section class="container mt-16 mb-16">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Shop by Category</h2>
+        <p class="section-subtitle">Explore curated departments crafted for effortless everyday utility.</p>
+      </div>
+      <a href="products.html" class="btn btn-ghost btn-sm">All Categories &rarr;</a>
+    </div>
+
+    <div class="categories-grid">
+      
+      <!-- Category 1: Apparel -->
+      <a href="products.html?category=apparel" class="category-card" id="cat-apparel">
+        <div class="category-card-bg">
+          <img src="../assets/product_tee.png" alt="Apparel Collection">
+        </div>
+        <div class="category-card-overlay"></div>
+        <div class="category-card-content">
+          <span class="badge badge-neutral mb-2" style="background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.3);">42 Items</span>
+          <h3 class="category-card-title">Minimal Apparel</h3>
+          <p class="category-card-subtitle">Organic tees, knitwear, and trousers</p>
+        </div>
+      </a>
+
+      <!-- Category 2: Footwear -->
+      <a href="products.html?category=footwear" class="category-card" id="cat-footwear">
+        <div class="category-card-bg">
+          <img src="../assets/product_sneaker.png" alt="Footwear Collection">
+        </div>
+        <div class="category-card-overlay"></div>
+        <div class="category-card-content">
+          <span class="badge badge-neutral mb-2" style="background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.3);">18 Items</span>
+          <h3 class="category-card-title">Footwear</h3>
+          <p class="category-card-subtitle">Full-grain leather sneakers & slip-ons</p>
+        </div>
+      </a>
+
+      <!-- Category 3: Accessories & Carry -->
+      <a href="products.html?category=carry" class="category-card" id="cat-carry">
+        <div class="category-card-bg">
+          <img src="../assets/product_backpack.png" alt="Carry and Bags">
+        </div>
+        <div class="category-card-overlay"></div>
+        <div class="category-card-content">
+          <span class="badge badge-neutral mb-2" style="background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.3);">26 Items</span>
+          <h3 class="category-card-title">Carry & Accessories</h3>
+          <p class="category-card-subtitle">Waterproof backpacks, watches, and wallets</p>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FEATURED PRODUCTS SECTION
+       ========================================================================== -->
+  <section class="container mb-16">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Featured Products</h2>
+        <p class="section-subtitle">Our most coveted pieces, updated weekly.</p>
+      </div>
+      <a href="products.html" class="btn btn-outline btn-sm">View Full Catalog &rarr;</a>
+    </div>
+
+    <div class="grid grid-cols-4 gap-6" id="featured-products-grid">
+      
+      <!-- Product Card 1 -->
+      <article class="product-card" data-product-id="prod-101">
+        <div class="product-image-wrap">
+          <span class="badge badge-accent product-badge-overlay">New</span>
+          <img src="../assets/product_tee.png" alt="Organic Heavyweight Tee" loading="lazy">
+          <button 
+            class="btn btn-primary btn-sm product-quick-add" 
+            data-id="prod-101"
+            data-name="Organic Heavyweight Tee"
+            data-price="48.00"
+            data-category="Apparel"
+            aria-label="Quick Add to Cart"
+          >
+            + Add
+          </button>
+        </div>
+        <div class="product-content">
+          <span class="product-category">Apparel</span>
+          <h3 class="product-name">
+            <a href="product-details.html?id=prod-101">Organic Heavyweight Tee</a>
+          </h3>
+          <div class="product-footer">
+            <span class="product-price">$48.00</span>
+            <a href="product-details.html?id=prod-101" class="btn btn-ghost btn-sm">View</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Product Card 2 -->
+      <article class="product-card" data-product-id="prod-102">
+        <div class="product-image-wrap">
+          <span class="badge badge-neutral product-badge-overlay">Best Seller</span>
+          <img src="../assets/product_sneaker.png" alt="Minimalist Leather Sneaker" loading="lazy">
+          <button 
+            class="btn btn-primary btn-sm product-quick-add" 
+            data-id="prod-102"
+            data-name="Minimalist Leather Sneaker"
+            data-price="165.00"
+            data-category="Footwear"
+            aria-label="Quick Add to Cart"
+          >
+            + Add
+          </button>
+        </div>
+        <div class="product-content">
+          <span class="product-category">Footwear</span>
+          <h3 class="product-name">
+            <a href="product-details.html?id=prod-102">Minimalist Leather Sneaker</a>
+          </h3>
+          <div class="product-footer">
+            <span class="product-price">$165.00</span>
+            <a href="product-details.html?id=prod-102" class="btn btn-ghost btn-sm">View</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Product Card 3 -->
+      <article class="product-card" data-product-id="prod-103">
+        <div class="product-image-wrap">
+          <img src="../assets/product_watch.png" alt="Ceramic Minimalist Watch" loading="lazy">
+          <button 
+            class="btn btn-primary btn-sm product-quick-add" 
+            data-id="prod-103"
+            data-name="Ceramic Minimalist Watch"
+            data-price="220.00"
+            data-category="Accessories"
+            aria-label="Quick Add to Cart"
+          >
+            + Add
+          </button>
+        </div>
+        <div class="product-content">
+          <span class="product-category">Accessories</span>
+          <h3 class="product-name">
+            <a href="product-details.html?id=prod-103">Ceramic Minimalist Watch</a>
+          </h3>
+          <div class="product-footer">
+            <span class="product-price">$220.00</span>
+            <a href="product-details.html?id=prod-103" class="btn btn-ghost btn-sm">View</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Product Card 4 -->
+      <article class="product-card" data-product-id="prod-104">
+        <div class="product-image-wrap">
+          <span class="badge badge-warning product-badge-overlay">Low Stock</span>
+          <img src="../assets/product_backpack.png" alt="Modular Commuter Backpack" loading="lazy">
+          <button 
+            class="btn btn-primary btn-sm product-quick-add" 
+            data-id="prod-104"
+            data-name="Modular Commuter Backpack"
+            data-price="185.00"
+            data-category="Carry"
+            aria-label="Quick Add to Cart"
+          >
+            + Add
+          </button>
+        </div>
+        <div class="product-content">
+          <span class="product-category">Carry</span>
+          <h3 class="product-name">
+            <a href="product-details.html?id=prod-104">Modular Commuter Backpack</a>
+          </h3>
+          <div class="product-footer">
+            <span class="product-price">$185.00</span>
+            <a href="product-details.html?id=prod-104" class="btn btn-ghost btn-sm">View</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SPOTLIGHT EDITORIAL BANNER
+       ========================================================================== -->
+  <section class="container mb-16">
+    <div class="spotlight-banner">
+      <div class="spotlight-content">
+        <span class="badge badge-accent mb-4">Precision Engineering</span>
+        <h2 class="spotlight-title">Designed for understated confidence.</h2>
+        <p class="spotlight-text">
+          Every silhouette is stripped of excess to highlight superior Japanese movements, vegetable-tanned Italian leathers, and Portuguese combed cotton.
+        </p>
+        <a href="products.html" class="btn btn-secondary btn-lg">Explore All New Releases &rarr;</a>
+      </div>
+      <div class="spotlight-image">
+        <img src="../assets/product_watch.png" alt="AURA Craftsmanship" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       NEWSLETTER SUBSCRIPTION SECTION
+       ========================================================================== -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-box">
+        <span class="badge badge-neutral mb-3">Stay Connected</span>
+        <h2 class="text-3xl font-bold mb-2">Join the AURA Community</h2>
+        <p class="text-sm text-secondary">
+          Receive exclusive early access to limited edition drops, design journal entries, and private seasonal sales.
+        </p>
+        <form class="newsletter-form" id="newsletter-form">
+          <input 
+            type="email" 
+            placeholder="Enter your email address..." 
+            class="form-control" 
+            required 
+            style="flex: 1;"
+          >
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+        <p class="text-xs text-muted mt-3">We respect your inbox. Unsubscribe at any time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       GLOBAL FOOTER
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        
+        <!-- Brand Summary -->
+        <div>
+          <a href="index.html" class="brand-logo mb-4">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>AURA</span>
+          </a>
+          <p class="text-sm text-secondary mb-4" style="max-width: 280px;">
+            Modern, minimal essentials engineered for longevity, comfort, and everyday elegance.
+          </p>
+          <div class="flex gap-3 text-secondary text-sm">
+            <span class="badge badge-neutral">USD ($)</span>
+            <span class="badge badge-neutral">Worldwide Shipping</span>
+          </div>
+        </div>
+
+        <!-- Shop Links -->
+        <div>
+          <div class="footer-column-title">Collections</div>
+          <div class="footer-links">
+            <a href="products.html" class="footer-link">All Products</a>
+            <a href="products.html?category=apparel" class="footer-link">Organic Apparel</a>
+            <a href="products.html?category=footwear" class="footer-link">Minimal Footwear</a>
+            <a href="products.html?category=accessories" class="footer-link">Precision Watches</a>
+            <a href="products.html?category=carry" class="footer-link">Commuter Bags</a>
+          </div>
+        </div>
+
+        <!-- Customer Care -->
+        <div>
+          <div class="footer-column-title">Customer Care</div>
+          <div class="footer-links">
+            <a href="cart.html" class="footer-link">View Cart</a>
+            <a href="checkout.html" class="footer-link">Checkout</a>
+            <a href="login.html" class="footer-link">My Account</a>
+            <a href="signup.html" class="footer-link">Create Account</a>
+            <a href="#" class="footer-link">Shipping & Returns</a>
+          </div>
+        </div>
+
+        <!-- Admin & Company -->
+        <div>
+          <div class="footer-column-title">Company & Portal</div>
+          <div class="footer-links">
+            <a href="../admin/dashboard.html" class="footer-link font-medium" style="color: var(--color-accent);">Admin Dashboard &rarr;</a>
+            <a href="../admin/products.html" class="footer-link">Product Manager</a>
+            <a href="../admin/orders.html" class="footer-link">Order Fulfillment</a>
+            <a href="#" class="footer-link">Sustainability Report</a>
+            <a href="#" class="footer-link">Privacy Policy</a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Bottom -->
+      <div class="footer-bottom">
+        <span>&copy; 2026 AURA Store Inc. All rights reserved.</span>
+        <span>Built with ES Modules, Vanilla CSS & Firebase</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       PAGE SCRIPTS (ES MODULES)
+       ========================================================================== -->
+  <script type="module">
+    import { getFeaturedProducts } from '../js/firestore.js';
+    import { addToCart, getCartItemCount } from '../js/cart.js';
+    import { initNavbarAuth } from '../js/auth.js';
+    import { formatCurrency, formatProductImage, showToast } from '../js/utils.js';
+
+    // Initialize Navbar Auth State
+    initNavbarAuth();
+
+    // Update cart badge
+    function refreshCartBadge() {
+      const badge = document.getElementById('cart-count-badge');
+      if (badge) {
+        badge.textContent = getCartItemCount();
+      }
+    }
+
+    refreshCartBadge();
+
+    window.addEventListener('cart-updated', () => {
+      refreshCartBadge();
+    });
+
+    const featuredGrid = document.getElementById('featured-products-grid');
+
+    // Render Shimmer Skeletons
+    function renderFeaturedSkeletons() {
+      if (!featuredGrid) return;
+      featuredGrid.innerHTML = Array.from({ length: 4 }).map(() => `
+        <div class="card" style="border-radius: var(--radius-lg); overflow: hidden;">
+          <div style="width: 100%; aspect-ratio: 1/1; background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
+          <div style="padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2);">
+            <div style="height: 10px; width: 30%; background: #e4e4e7; border-radius: var(--radius-xs);"></div>
+            <div style="height: 14px; width: 75%; background: #e4e4e7; border-radius: var(--radius-xs);"></div>
+            <div style="height: 14px; width: 40%; background: #e4e4e7; border-radius: var(--radius-xs); margin-top: 8px;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Fetch and render from Cloud Firestore
+    async function loadFeaturedProducts() {
+      renderFeaturedSkeletons();
+
+      try {
+        const products = await getFeaturedProducts();
+
+        if (!products || products.length === 0) {
+          featuredGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: var(--space-8); color: var(--color-text-secondary);">
+              No featured products currently available.
+            </div>
+          `;
+          return;
+        }
+
+        // Render products using destructuring, optional chaining, and map()
+        featuredGrid.innerHTML = products.slice(0, 4).map(product => {
+          const { id, title, price, category, image, badge } = product || {};
+          return `
+            <article class="product-card" data-product-id="${id}">
+              <div class="product-image-wrap">
+                ${badge ? `<span class="badge ${badge === 'New' ? 'badge-accent' : badge === 'Low Stock' ? 'badge-warning' : 'badge-neutral'} product-badge-overlay">${badge}</span>` : ''}
+                <img src="${formatProductImage(image)}" alt="${title}" loading="lazy" onerror="this.src='../assets/product_tee.png'">
+                <button 
+                  class="btn btn-primary btn-sm product-quick-add" 
+                  data-id="${id}"
+                  data-name="${title}"
+                  data-price="${price}"
+                  data-category="${category}"
+                  aria-label="Quick Add to Cart"
+                >
+                  + Add
+                </button>
+              </div>
+              <div class="product-content">
+                <span class="product-category">${category}</span>
+                <h3 class="product-name">
+                  <a href="product-details.html?id=${id}">${title}</a>
+                </h3>
+                <div class="product-footer">
+                  <span class="product-price">${formatCurrency(price)}</span>
+                  <a href="product-details.html?id=${id}" class="btn btn-ghost btn-sm">View</a>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        // Attach Quick Add Handlers
+        featuredGrid.querySelectorAll('.product-quick-add').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const { id, name, price, category } = btn.dataset;
+            addToCart({ id, name, price: parseFloat(price) || 0, category }, 1);
+            refreshCartBadge();
+            showToast(`Added "${name}" to your cart.`, 'success');
+          });
+        });
+
+      } catch (err) {
+        console.error('[Firestore] Error rendering homepage featured products:', err);
+        featuredGrid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: var(--space-8); color: var(--color-danger);">
+            Unable to load featured products from Firestore at this time.
+          </div>
+        `;
+      }
+    }
+
+    loadFeaturedProducts();
+
+    // Mobile Navigation Drawer Toggle
+    const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+
+    if (mobileToggleBtn && mobileDrawer) {
+      mobileToggleBtn.addEventListener('click', () => {
+        mobileDrawer.classList.toggle('open');
+      });
+    }
+
+    // Newsletter Form
+    const newsletterForm = document.getElementById('newsletter-form');
+    if (newsletterForm) {
+      newsletterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        showToast('Thank you for subscribing to AURA updates.', 'success');
+        newsletterForm.reset();
+      });
+    }
+  </script>
+</body>
+</html>

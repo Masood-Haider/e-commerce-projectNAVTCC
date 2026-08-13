@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products Manager | AURA Admin</title>
+  <meta name="description" content="Add, edit, inventory track, and manage store products in Cloud Firestore.">
+  <link rel="stylesheet" href="../css/admin.css">
+  <style>
+    /* Modal Layer Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(9, 9, 11, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background-color: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      padding: var(--space-8);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      padding: var(--space-1);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-subtle);
+    }
+
+    .product-thumb-sm {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-subtle);
+    }
+
+    .skeleton-tr td {
+      padding: var(--space-4) var(--space-6);
+    }
+
+    .skeleton-bar {
+      height: 14px;
+      background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-xs);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-layout">
+    
+    <!-- Mobile Backdrop -->
+    <div class="admin-sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      
+      <div class="admin-sidebar-header">
+        <a href="dashboard.html" class="admin-logo">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span>AURA <span style="font-size: var(--text-xs); font-weight: normal; color: var(--color-text-secondary);">&bull; Studio</span></span>
+        </a>
+      </div>
+
+      <nav class="admin-sidebar-nav">
+        
+        <a href="dashboard.html" class="admin-nav-item">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>Overview</span>
+        </a>
+
+        <a href="products.html" class="admin-nav-item active">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <span>Products</span>
+        </a>
+
+        <a href="orders.html" class="admin-nav-item">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+          </svg>
+          <span>Orders</span>
+        </a>
+
+        <div style="margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--color-border-subtle);">
+          <span class="text-xs text-muted uppercase font-semibold" style="padding-left: var(--space-3); letter-spacing: 0.05em;">Storefront</span>
+          <a href="../customer/index.html" target="_blank" class="admin-nav-item mt-1">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            <span>Live Storefront &rarr;</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <button id="btn-admin-logout" class="btn btn-ghost btn-sm w-full justify-start text-danger" style="color: var(--color-danger);">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: var(--space-2);">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Sign Out
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- Admin Main Body -->
+    <div class="admin-main">
+      
+      <!-- Topbar Header -->
+      <header class="admin-topbar">
+        
+        <div class="admin-topbar-left">
+          <button class="admin-mobile-toggle" id="mobile-sidebar-toggle" aria-label="Toggle Navigation">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          <div class="flex items-center gap-2 text-sm text-secondary">
+            <a href="dashboard.html" class="hover:underline">Admin</a>
+            <span>/</span>
+            <span class="text-primary font-semibold">Catalog Management</span>
+          </div>
+        </div>
+
+        <div class="admin-topbar-right">
+          <div class="admin-user-profile" id="admin-profile-pill">
+            <div class="admin-avatar" id="admin-avatar-initial">A</div>
+            <div class="flex flex-col text-left">
+              <span class="text-xs font-bold" id="admin-display-name">Admin User</span>
+              <span class="text-xs text-secondary" id="admin-email-tag" style="font-size: 10px;">admin@aurastore.com</span>
+            </div>
+          </div>
+        </div>
+
+      </header>
+
+      <!-- Main Content -->
+      <main class="admin-page-content" id="admin-page-root">
+        
+        <div class="admin-page-header">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight">Products Catalog</h1>
+            <p class="text-sm text-secondary" id="product-count-summary">Querying active products in Cloud Firestore...</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button id="btn-sync-catalog" class="btn-admin-secondary" title="Populate Firestore with default website catalog products">
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Sync Default Catalog</span>
+            </button>
+            <button id="btn-open-add-modal" class="btn-admin-primary">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Add New Product</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="card mb-6" style="overflow: hidden;">
+          <div class="admin-toolbar-card">
+            
+            <div class="admin-toolbar-left">
+              <!-- Search Bar with Integrated Icon -->
+              <div class="admin-search-wrapper">
+                <svg class="admin-search-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input 
+                  type="search" 
+                  id="search-products-input" 
+                  class="admin-search-input" 
+                  placeholder="Search catalog by title, category, or ID..."
+                >
+              </div>
+
+              <!-- Category Filter Dropdown with Prefix Icon -->
+              <div class="admin-filter-wrapper">
+                <svg class="admin-filter-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <select id="filter-category-select" class="admin-filter-select" aria-label="Filter by category">
+                  <option value="all">All Categories</option>
+                  <option value="apparel">Apparel</option>
+                  <option value="footwear">Footwear</option>
+                  <option value="accessories">Accessories</option>
+                  <option value="carry">Carry & Bags</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="admin-toolbar-right">
+              <button id="btn-refresh-products" class="btn-admin-icon" title="Refresh Table Data" aria-label="Refresh Table Data">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Products Table -->
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Inventory</th>
+                  <th>Badge</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-tbody">
+                <!-- Populated via script -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: ADD / EDIT PRODUCT
+       ========================================================================== -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-card">
+      
+      <div class="modal-header">
+        <div>
+          <h2 class="text-lg font-bold" id="modal-title">Add New Product</h2>
+          <p class="text-xs text-secondary" id="modal-subtitle">Save a new item to Cloud Firestore.</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="product-form" novalidate class="flex flex-col gap-4">
+        
+        <input type="hidden" id="form-product-id">
+
+        <div class="form-group mb-0">
+          <label class="form-label" for="form-title">Product Title *</label>
+          <input type="text" id="form-title" class="form-control" placeholder="e.g. Organic Heavyweight Tee" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group mb-0">
+            <label class="form-label" for="form-price">Price (USD) *</label>
+            <input type="number" step="0.01" min="0" id="form-price" class="form-control" placeholder="48.00" required>
+          </div>
+
+          <div class="form-group mb-0">
+            <label class="form-label" for="form-category">Category *</label>
+            <select id="form-category" class="form-select" required>
+              <option value="apparel">Apparel</option>
+              <option value="footwear">Footwear</option>
+              <option value="accessories">Accessories</option>
+              <option value="carry">Carry</option>
+              <option value="living">Living</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group mb-0">
+            <label class="form-label" for="form-stock">Stock Quantity *</label>
+            <input type="number" min="0" id="form-stock" class="form-control" placeholder="25" required>
+          </div>
+
+          <div class="form-group mb-0">
+            <label class="form-label" for="form-badge">Badge (Optional)</label>
+            <select id="form-badge" class="form-select">
+              <option value="">None</option>
+              <option value="New">New</option>
+              <option value="Best Seller">Best Seller</option>
+              <option value="Limited">Limited</option>
+              <option value="Low Stock">Low Stock</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group mb-0">
+          <div class="flex items-center justify-between mb-1">
+            <label class="form-label mb-0" for="form-image">Image Filename / Preset *</label>
+            <span class="text-xs text-muted">Loads from <code>assets/</code> folder</span>
+          </div>
+
+          <div class="flex gap-3 items-center">
+            <div style="position: relative; width: 44px; height: 44px; flex-shrink: 0; border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; background: var(--color-bg-subtle);">
+              <img id="form-image-preview" src="../assets/product_tee.png" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='../assets/product_tee.png'">
+            </div>
+            <div class="w-full">
+              <input type="text" id="form-image" class="form-control text-sm" placeholder="e.g. jacket.png or product_hoodie.png" required>
+            </div>
+          </div>
+
+          <p class="text-xs text-secondary mt-1">
+            Add your image file into the project's <code>assets/</code> directory and simply enter its filename here.
+          </p>
+
+          <div class="flex flex-wrap gap-1 mt-2">
+            <span class="text-xs text-muted self-center mr-1">Presets:</span>
+            <button type="button" class="btn btn-ghost btn-sm btn-img-preset" style="font-size: 10px; padding: 2px 6px;" data-img="product_tee.png">Tee</button>
+            <button type="button" class="btn btn-ghost btn-sm btn-img-preset" style="font-size: 10px; padding: 2px 6px;" data-img="product_hoodie.png">Hoodie</button>
+            <button type="button" class="btn btn-ghost btn-sm btn-img-preset" style="font-size: 10px; padding: 2px 6px;" data-img="product_sneaker.png">Sneaker</button>
+            <button type="button" class="btn btn-ghost btn-sm btn-img-preset" style="font-size: 10px; padding: 2px 6px;" data-img="product_boots.png">Boots</button>
+            <button type="button" class="btn btn-ghost btn-sm btn-img-preset" style="font-size: 10px; padding: 2px 6px;" data-img="product_watch.png">Watch</button>
+            <button type="button" class="btn btn-ghost btn-sm btn-img-preset" style="font-size: 10px; padding: 2px 6px;" data-img="product_backpack.png">Backpack</button>
+            <button type="button" class="btn btn-ghost btn-sm btn-img-preset" style="font-size: 10px; padding: 2px 6px;" data-img="product_wallet.png">Wallet</button>
+            <button type="button" class="btn btn-ghost btn-sm btn-img-preset" style="font-size: 10px; padding: 2px 6px;" data-img="product_sunglasses.png">Sunglasses</button>
+          </div>
+        </div>
+
+        <div class="form-group mb-0">
+          <label class="form-label" for="form-description">Description *</label>
+          <textarea id="form-description" class="form-control" rows="3" placeholder="Minimalist product summary..." required></textarea>
+        </div>
+
+        <div class="form-group mb-0">
+          <label class="form-label" for="form-details">Material & Construction Details (One per line)</label>
+          <textarea id="form-details" class="form-control text-xs" rows="3" placeholder="100% organic combed cotton&#10;Pre-shrunk finish&#10;Made in Portugal"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group mb-0">
+            <label class="form-label" for="form-sizes">Sizes (Comma separated)</label>
+            <input type="text" id="form-sizes" class="form-control" placeholder="S, M, L, XL">
+          </div>
+
+          <div class="form-group mb-0 flex items-center gap-2 pt-6">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" id="form-featured" class="form-checkbox">
+              <span class="font-medium">Feature on Homepage</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4 pt-4 border-t" style="border-color: var(--color-border-subtle);">
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-cancel-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="btn-submit-product">
+            Save Product
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: DELETE CONFIRMATION
+       ========================================================================== -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-card" style="max-width: 440px; text-align: center;">
+      
+      <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--color-danger-subtle); color: var(--color-danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+
+      <h2 class="text-xl font-bold mb-2">Delete Product</h2>
+      <p class="text-sm text-secondary mb-6" id="delete-modal-msg">
+        Are you sure you want to permanently remove this product from Cloud Firestore? This action cannot be undone.
+      </p>
+
+      <div class="flex justify-center gap-3">
+        <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-delete">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-delete" style="background-color: var(--color-danger); border-color: var(--color-danger);">
+          Yes, Delete Product
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modular Scripts -->
+  <script type="module">
+    import { getCurrentUser, onUserAuthStateChanged, getUserRole, logoutUser } from '../js/auth.js';
+    import { getProducts, createProduct, updateProduct, deleteProduct, syncDefaultCatalogToFirestore } from '../js/firestore.js';
+    import { formatCurrency, formatProductImage, showToast } from '../js/utils.js';
+
+    // State
+    let productsCache = [];
+    let activeDeleteId = null;
+
+    // DOM Elements
+    const productsTbody = document.getElementById('products-tbody');
+    const countSummary = document.getElementById('product-count-summary');
+    const searchInput = document.getElementById('search-products-input');
+    const categorySelect = document.getElementById('filter-category-select');
+    const btnRefresh = document.getElementById('btn-refresh-products');
+    const btnOpenAddModal = document.getElementById('btn-open-add-modal');
+    
+    // Modal DOM
+    const productModal = document.getElementById('product-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalSubtitle = document.getElementById('modal-subtitle');
+    const productForm = document.getElementById('product-form');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const btnCancelModal = document.getElementById('btn-cancel-modal');
+    const btnSubmitProduct = document.getElementById('btn-submit-product');
+    const formImageInput = document.getElementById('form-image');
+    const formImagePreview = document.getElementById('form-image-preview');
+
+    // Delete Modal DOM
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteModalMsg = document.getElementById('delete-modal-msg');
+    const btnCancelDelete = document.getElementById('btn-cancel-delete');
+    const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+
+    // Mobile Sidebar
+    const mobileToggle = document.getElementById('mobile-sidebar-toggle');
+    const sidebar = document.getElementById('admin-sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    const btnLogout = document.getElementById('btn-admin-logout');
+
+    if (mobileToggle && sidebar && backdrop) {
+      mobileToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        backdrop.classList.toggle('open');
+      });
+      backdrop.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('open');
+      });
+    }
+
+    if (btnLogout) {
+      btnLogout.addEventListener('click', async () => {
+        await logoutUser();
+        window.location.href = '../customer/login.html';
+      });
+    }
+
+    // Role-Based Access Control Gate
+    async function verifyAdminAccess(user) {
+      if (!user) {
+        window.location.href = `../customer/login.html?redirect=../admin/products.html`;
+        return false;
+      }
+
+      const role = await getUserRole(user.uid);
+      if (role !== 'admin') {
+        showToast('Access denied: Admin permissions required. Redirecting to home...', 'danger');
+        const root = document.getElementById('admin-page-root');
+        if (root) {
+          root.innerHTML = `
+            <div class="admin-gate-card">
+              <h1 class="text-2xl font-bold mb-2">Administrator Access Required</h1>
+              <p class="text-sm text-secondary mb-4">You do not have permissions to manage products. Redirecting...</p>
+              <a href="../customer/index.html" class="btn btn-primary btn-sm">Return to Home Page</a>
+            </div>
+          `;
+        }
+        setTimeout(() => {
+          window.location.replace('../customer/index.html');
+        }, 1000);
+        return false;
+      }
+
+      const name = user.displayName || user.email.split('@')[0];
+      const adminDisplayName = document.getElementById('admin-display-name');
+      const adminEmailTag = document.getElementById('admin-email-tag');
+      const adminAvatarInitial = document.getElementById('admin-avatar-initial');
+      if (adminDisplayName) adminDisplayName.textContent = name;
+      if (adminEmailTag) adminEmailTag.textContent = user.email;
+      if (adminAvatarInitial) adminAvatarInitial.textContent = name.charAt(0).toUpperCase();
+
+      return true;
+    }
+
+    // Render Shimmer Loading Table Rows
+    function renderLoadingRows() {
+      productsTbody.innerHTML = Array.from({ length: 5 }).map(() => `
+        <tr class="skeleton-tr">
+          <td>
+            <div class="flex items-center gap-3">
+              <div class="skeleton-bar" style="width: 40px; height: 40px; border-radius: var(--radius-md);"></div>
+              <div class="flex flex-col gap-1 w-full" style="max-width: 160px;">
+                <div class="skeleton-bar" style="width: 80%;"></div>
+                <div class="skeleton-bar" style="width: 40%;"></div>
+              </div>
+            </div>
+          </td>
+          <td><div class="skeleton-bar" style="width: 60px;"></div></td>
+          <td><div class="skeleton-bar" style="width: 50px;"></div></td>
+          <td><div class="skeleton-bar" style="width: 60px;"></div></td>
+          <td><div class="skeleton-bar" style="width: 40px;"></div></td>
+          <td class="text-right"><div class="skeleton-bar" style="width: 70px; margin-left: auto;"></div></td>
+        </tr>
+      `).join('');
+    }
+
+    // Fetch and render products from Firestore
+    async function loadProducts() {
+      renderLoadingRows();
+
+      try {
+        const products = await getProducts();
+        productsCache = products;
+        renderProductsTable();
+      } catch (err) {
+        console.error('[Admin] Error loading products:', err);
+        productsTbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-8 text-danger">
+              Failed to load products from Cloud Firestore.
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Filter and Render Table Rows
+    function renderProductsTable() {
+      const query = (searchInput?.value || '').toLowerCase().trim();
+      const cat = categorySelect?.value || 'all';
+
+      let filtered = [...productsCache];
+
+      if (query) {
+        filtered = filtered.filter(p => 
+          (p?.title || '').toLowerCase().includes(query) ||
+          (p?.description || '').toLowerCase().includes(query) ||
+          (p?.id || '').toLowerCase().includes(query)
+        );
+      }
+
+      if (cat !== 'all') {
+        filtered = filtered.filter(p => (p?.category || '').toLowerCase() === cat.toLowerCase());
+      }
+
+      if (countSummary) {
+        countSummary.textContent = `Showing ${filtered.length} of ${productsCache.length} products in Cloud Firestore.`;
+      }
+
+      if (filtered.length === 0) {
+        productsTbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-10">
+              <div class="text-secondary text-sm mb-3">No products match your current filters.</div>
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('search-products-input').value=''; document.getElementById('filter-category-select').value='all'; document.getElementById('search-products-input').dispatchEvent(new Event('input'));">
+                Clear Filters
+              </button>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      productsTbody.innerHTML = filtered.map(product => {
+        const { id, title, price, category, image, stock, badge, featured } = product || {};
+        const isLowStock = (stock ?? 0) <= 10;
+
+        return `
+          <tr data-id="${id}">
+            <td>
+              <div class="flex items-center gap-3">
+                <img src="${formatProductImage(image)}" alt="${title}" class="product-thumb-sm" onerror="this.src='../assets/product_tee.png'">
+                <div>
+                  <div class="font-semibold text-sm">${title}</div>
+                  <div class="text-xs text-secondary font-mono" style="font-size: 10px;">ID: ${id}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-neutral text-xs" style="text-transform: capitalize;">${category}</span>
+            </td>
+            <td class="font-semibold text-sm">${formatCurrency(price)}</td>
+            <td>
+              <span class="badge ${isLowStock ? 'badge-warning' : 'badge-success'} text-xs">
+                ${stock} units ${isLowStock ? '(Low)' : ''}
+              </span>
+            </td>
+            <td>
+              ${badge ? `<span class="badge badge-accent text-xs">${badge}</span>` : '<span class="text-muted text-xs">—</span>'}
+              ${featured ? `<span class="badge badge-neutral text-xs ml-1">★ Featured</span>` : ''}
+            </td>
+            <td class="text-right">
+              <div class="flex justify-end items-center gap-2">
+                <button class="btn btn-ghost btn-sm btn-edit-product" data-id="${id}" title="Edit product">
+                  Edit
+                </button>
+                <button class="btn btn-ghost btn-sm text-danger btn-delete-product" data-id="${id}" data-title="${title}" title="Delete product" style="color: var(--color-danger);">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Attach Edit & Delete Listeners
+      productsTbody.querySelectorAll('.btn-edit-product').forEach(btn => {
+        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+      });
+
+      productsTbody.querySelectorAll('.btn-delete-product').forEach(btn => {
+        btn.addEventListener('click', () => openDeleteModal(btn.dataset.id, btn.dataset.title));
+      });
+    }
+
+    // Live Image Preview & Presets
+    if (formImageInput && formImagePreview) {
+      formImageInput.addEventListener('input', () => {
+        formImagePreview.src = formatProductImage(formImageInput.value);
+      });
+    }
+
+    document.querySelectorAll('.btn-img-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const imgName = btn.dataset.img;
+        if (formImageInput) {
+          formImageInput.value = imgName;
+          if (formImagePreview) formImagePreview.src = formatProductImage(imgName);
+        }
+      });
+    });
+
+    // Modal Handlers
+    function openAddModal() {
+      productForm.reset();
+      document.getElementById('form-product-id').value = '';
+      if (formImagePreview) formImagePreview.src = '../assets/product_tee.png';
+      modalTitle.textContent = 'Add New Product';
+      modalSubtitle.textContent = 'Create a new catalog item in Cloud Firestore.';
+      btnSubmitProduct.textContent = 'Add Product to Firestore';
+      productModal.classList.add('open');
+    }
+
+    function openEditModal(productId) {
+      const product = productsCache.find(p => p.id === productId);
+      if (!product) return;
+
+      document.getElementById('form-product-id').value = product.id;
+      document.getElementById('form-title').value = product.title || '';
+      document.getElementById('form-price').value = product.price || '';
+      document.getElementById('form-category').value = (product.category || 'apparel').toLowerCase();
+      document.getElementById('form-stock').value = product.stock ?? 10;
+      document.getElementById('form-badge').value = product.badge || '';
+      
+      const rawImg = product.image || 'product_tee.png';
+      document.getElementById('form-image').value = rawImg;
+      if (formImagePreview) formImagePreview.src = formatProductImage(rawImg);
+
+      document.getElementById('form-description').value = product.description || '';
+      document.getElementById('form-details').value = Array.isArray(product.details) ? product.details.join('\n') : (product.details || '');
+      document.getElementById('form-sizes').value = Array.isArray(product.sizes) ? product.sizes.join(', ') : (product.sizes || '');
+      document.getElementById('form-featured').checked = Boolean(product.featured);
+
+      modalTitle.textContent = 'Edit Product';
+      modalSubtitle.textContent = `Update document ID: ${product.id}`;
+      btnSubmitProduct.textContent = 'Save Changes';
+      productModal.classList.add('open');
+    }
+
+    function closeModal() {
+      productModal.classList.remove('open');
+    }
+
+    // Delete Modal Handlers
+    function openDeleteModal(productId, productTitle) {
+      activeDeleteId = productId;
+      deleteModalMsg.innerHTML = `Are you sure you want to permanently delete <strong>"${productTitle}"</strong> (ID: <code>${productId}</code>)?`;
+      deleteModal.classList.add('open');
+    }
+
+    function closeDeleteModal() {
+      activeDeleteId = null;
+      deleteModal.classList.remove('open');
+    }
+
+    // Save Form Handler (Add or Update)
+    if (productForm) {
+      productForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const editId = document.getElementById('form-product-id').value;
+        const title = document.getElementById('form-title').value.trim();
+        const price = parseFloat(document.getElementById('form-price').value);
+        const category = document.getElementById('form-category').value;
+        const stock = parseInt(document.getElementById('form-stock').value, 10);
+        const badge = document.getElementById('form-badge').value;
+        const image = document.getElementById('form-image').value.trim();
+        const description = document.getElementById('form-description').value.trim();
+        const details = document.getElementById('form-details').value;
+        const sizes = document.getElementById('form-sizes').value;
+        const featured = document.getElementById('form-featured').checked;
+
+        if (!title || isNaN(price) || !category) {
+          showToast('Please fill in all required product fields.', 'danger');
+          return;
+        }
+
+        btnSubmitProduct.disabled = true;
+        btnSubmitProduct.innerHTML = `
+          <svg class="animate-spin" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation: spin 1s linear infinite; display: inline-block;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Saving to Firestore...
+        `;
+
+        try {
+          const payload = {
+            title,
+            price,
+            category,
+            stock,
+            badge: badge || null,
+            image: image || 'product_tee.png',
+            description,
+            details,
+            sizes,
+            featured
+          };
+
+          if (editId) {
+            // Update Firestore Document
+            await updateProduct(editId, payload);
+            showToast(`Product "${title}" updated successfully!`, 'success');
+          } else {
+            // Create New Firestore Document
+            await createProduct(payload);
+            showToast(`New product "${title}" added to Firestore!`, 'success');
+          }
+
+          closeModal();
+          await loadProducts();
+
+        } catch (err) {
+          console.error('[Admin] Error saving product:', err);
+          showToast(`Operation failed: ${err.message}`, 'danger');
+        } finally {
+          btnSubmitProduct.disabled = false;
+          btnSubmitProduct.textContent = editId ? 'Save Changes' : 'Add Product to Firestore';
+        }
+      });
+    }
+
+    // Confirm Delete Handler
+    if (btnConfirmDelete) {
+      btnConfirmDelete.addEventListener('click', async () => {
+        if (!activeDeleteId) return;
+
+        btnConfirmDelete.disabled = true;
+        btnConfirmDelete.textContent = 'Deleting...';
+
+        try {
+          await deleteProduct(activeDeleteId);
+          showToast('Product document deleted from Cloud Firestore.', 'success');
+          closeDeleteModal();
+          await loadProducts();
+        } catch (err) {
+          console.error('[Admin] Error deleting product:', err);
+          showToast(`Delete failed: ${err.message}`, 'danger');
+        } finally {
+          btnConfirmDelete.disabled = false;
+          btnConfirmDelete.textContent = 'Yes, Delete Product';
+        }
+      });
+    }
+
+    // Search and Filter Listeners
+    if (searchInput) searchInput.addEventListener('input', renderProductsTable);
+    if (categorySelect) categorySelect.addEventListener('change', renderProductsTable);
+    if (btnRefresh) btnRefresh.addEventListener('click', loadProducts);
+
+    // Sync Catalog Button Listener
+    const btnSyncCatalog = document.getElementById('btn-sync-catalog');
+    if (btnSyncCatalog) {
+      btnSyncCatalog.addEventListener('click', async () => {
+        btnSyncCatalog.disabled = true;
+        btnSyncCatalog.innerHTML = `
+          <svg class="animate-spin" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation: spin 1s linear infinite; display: inline-block;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Syncing to Firestore...</span>
+        `;
+
+        try {
+          const count = await syncDefaultCatalogToFirestore();
+          showToast(`Successfully synced ${count || 8} products to Cloud Firestore!`, 'success');
+          await loadProducts();
+        } catch (err) {
+          console.error('[Admin] Catalog sync error:', err);
+          showToast(`Catalog sync failed: ${err.message}`, 'danger');
+        } finally {
+          btnSyncCatalog.disabled = false;
+          btnSyncCatalog.innerHTML = `
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Sync Default Catalog</span>
+          `;
+        }
+      });
+    }
+
+    if (btnOpenAddModal) btnOpenAddModal.addEventListener('click', openAddModal);
+    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+    if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
+    if (btnCancelDelete) btnCancelDelete.addEventListener('click', closeDeleteModal);
+
+    // Close modals on escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeDeleteModal();
+      }
+    });
+
+    // Initialize Auth Listener & Fetch Products
+    onUserAuthStateChanged(async (user) => {
+      const isAuthorized = await verifyAdminAccess(user);
+      if (isAuthorized) {
+        loadProducts();
+      }
+    });
+  </script>
+</body>
+</html>

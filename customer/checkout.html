@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | AURA</title>
+  <meta name="description" content="Complete your purchase securely with Firebase Authentication.">
+  <link rel="stylesheet" href="../css/customer.css">
+  <style>
+    .form-error {
+      border-color: var(--color-danger) !important;
+    }
+
+    .form-error-msg {
+      font-size: var(--text-xs);
+      color: var(--color-danger);
+      margin-top: 2px;
+      display: none;
+    }
+
+    .form-error-msg.visible {
+      display: block;
+    }
+
+    .checkout-item-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-subtle);
+    }
+
+    .checkout-step-header {
+      font-size: var(--text-base);
+      font-weight: var(--font-bold);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .step-number {
+      width: 22px;
+      height: 22px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-primary);
+      color: var(--color-text-inverse);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--font-bold);
+    }
+
+    .payment-option-card {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .payment-option-card.active {
+      border-color: var(--color-primary);
+      background-color: var(--color-bg-subtle);
+    }
+
+    /* Auth Gate Prompt */
+    .auth-gate-card {
+      max-width: 540px;
+      margin: var(--space-12) auto;
+      text-align: center;
+      background-color: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-10);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Order Confirmation Success State View */
+    .confirmation-view {
+      max-width: 720px;
+      margin: var(--space-8) auto;
+      background-color: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-10);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .confirmation-icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-success-subtle);
+      border: 2px solid var(--color-success-border);
+      color: var(--color-success-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-5) auto;
+    }
+
+    .empty-checkout-prompt {
+      text-align: center;
+      padding: var(--space-16) var(--space-6);
+      background-color: var(--color-bg-surface);
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-xl);
+      max-width: 600px;
+      margin: var(--space-12) auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Minimal Checkout Header -->
+  <header class="site-header">
+    <div class="container header-container">
+      
+      <div class="header-left">
+        <a href="index.html" class="brand-logo" id="header-brand-logo">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span>AURA</span>
+        </a>
+      </div>
+
+      <div class="header-actions">
+        <span class="badge badge-success flex items-center gap-1">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          256-Bit SSL Encrypted
+        </span>
+        <a href="cart.html" class="btn btn-ghost btn-sm">&larr; Return to Bag</a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Checkout Content Container -->
+  <main class="main-content">
+    <div class="container" id="checkout-root">
+      
+      <!-- Populated via script: Auth Gate OR Checkout Form OR Confirmation Screen -->
+      <div id="checkout-content-area">
+        
+        <div class="section-header mb-8">
+          <div>
+            <h1 class="section-title">Secure Checkout</h1>
+            <p class="section-subtitle">Please enter your shipping address and payment details.</p>
+          </div>
+        </div>
+
+        <div class="checkout-grid" id="checkout-layout-grid">
+          
+          <!-- Left Column: Checkout Forms -->
+          <form id="checkout-form" novalidate class="flex flex-col gap-6">
+            
+            <!-- Step 1: Customer Contact Information -->
+            <div class="card card-body">
+              <h2 class="checkout-step-header justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="step-number">1</span>
+                  <span>Contact Details</span>
+                </div>
+                <div id="auth-status-pill">
+                  <!-- Injected via auth observer -->
+                </div>
+              </h2>
+
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="form-group mb-0">
+                  <label class="form-label" for="cust-fullname">Full Name *</label>
+                  <input type="text" id="cust-fullname" class="form-control" placeholder="Alex Morgan" required>
+                  <span class="form-error-msg" id="err-fullname">Please enter your full name.</span>
+                </div>
+
+                <div class="form-group mb-0">
+                  <label class="form-label" for="cust-email">Email Address *</label>
+                  <input type="email" id="cust-email" class="form-control" placeholder="alex@example.com" required>
+                  <span class="form-error-msg" id="err-email">Please enter a valid email address.</span>
+                </div>
+              </div>
+
+              <div class="form-group mb-0">
+                <label class="form-label" for="cust-phone">Phone Number *</label>
+                <input type="tel" id="cust-phone" class="form-control" placeholder="+1 (555) 000-0000" required>
+                <span class="form-error-msg" id="err-phone">Please enter your contact phone number.</span>
+              </div>
+            </div>
+
+            <!-- Step 2: Shipping Destination -->
+            <div class="card card-body">
+              <h2 class="checkout-step-header">
+                <span class="step-number">2</span>
+                <span>Shipping Address</span>
+              </h2>
+
+              <div class="form-group">
+                <label class="form-label" for="ship-address">Street Address *</label>
+                <input type="text" id="ship-address" class="form-control" placeholder="123 Minimalist Way" required>
+                <span class="form-error-msg" id="err-address">Please enter your delivery street address.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="ship-suite">Apartment, Suite, Unit (Optional)</label>
+                <input type="text" id="ship-suite" class="form-control" placeholder="Suite 4B">
+              </div>
+
+              <div class="grid grid-cols-3 gap-4">
+                <div class="form-group mb-0">
+                  <label class="form-label" for="ship-city">City *</label>
+                  <input type="text" id="ship-city" class="form-control" placeholder="New York" required>
+                  <span class="form-error-msg" id="err-city">Required</span>
+                </div>
+
+                <div class="form-group mb-0">
+                  <label class="form-label" for="ship-state">State / Region *</label>
+                  <input type="text" id="ship-state" class="form-control" placeholder="NY" required>
+                  <span class="form-error-msg" id="err-state">Required</span>
+                </div>
+
+                <div class="form-group mb-0">
+                  <label class="form-label" for="ship-zip">Postal Code *</label>
+                  <input type="text" id="ship-zip" class="form-control" placeholder="10001" required>
+                  <span class="form-error-msg" id="err-zip">Required</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Payment Method -->
+            <div class="card card-body">
+              <h2 class="checkout-step-header">
+                <span class="step-number">3</span>
+                <span>Payment Method</span>
+              </h2>
+
+              <div class="flex flex-col gap-3 mb-4">
+                <label class="payment-option-card active flex items-center gap-3" id="opt-cc">
+                  <input type="radio" name="payment_method" value="credit_card" class="form-radio" checked>
+                  <div>
+                    <div class="text-sm font-semibold">Credit or Debit Card</div>
+                    <div class="text-xs text-secondary">Visa, Mastercard, American Express (256-bit Tokenized)</div>
+                  </div>
+                </label>
+              </div>
+
+              <div id="cc-fields-container" class="flex flex-col gap-3 pt-2">
+                <div class="form-group mb-0">
+                  <label class="form-label" for="cc-number">Card Number *</label>
+                  <input type="text" id="cc-number" class="form-control" placeholder="4242 •••• •••• 4242" maxlength="19" required>
+                  <span class="form-error-msg" id="err-cc-number">Please enter a valid 16-digit card number.</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group mb-0">
+                    <label class="form-label" for="cc-expiry">Expiration (MM/YY) *</label>
+                    <input type="text" id="cc-expiry" class="form-control" placeholder="12/28" maxlength="5" required>
+                    <span class="form-error-msg" id="err-cc-expiry">MM/YY</span>
+                  </div>
+
+                  <div class="form-group mb-0">
+                    <label class="form-label" for="cc-cvc">CVC Code *</label>
+                    <input type="text" id="cc-cvc" class="form-control" placeholder="123" maxlength="4" required>
+                    <span class="form-error-msg" id="err-cc-cvc">3 or 4 digits</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="btn-submit-order" class="btn btn-primary btn-lg w-full">
+              Complete Order &bull; <span id="btn-submit-total">$0.00</span>
+            </button>
+
+            <p class="text-xs text-secondary text-center">
+              By clicking "Complete Order", you authorize payment and agree to our terms.
+            </p>
+
+          </form>
+
+          <!-- Right Column: Order Summary Sidebar -->
+          <aside class="order-summary-card" id="checkout-summary-sidebar">
+            <h2 class="text-base font-bold mb-4 flex items-center justify-between">
+              <span>Items in Order</span>
+              <span class="text-xs font-normal text-secondary" id="checkout-count-badge">0 items</span>
+            </h2>
+
+            <div id="checkout-items-list" class="flex flex-col gap-3 pb-4 mb-4 border-b" style="border-color: var(--color-border-subtle); max-height: 280px; overflow-y: auto;">
+              <!-- Populated via script -->
+            </div>
+
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span id="co-subtotal">$0.00</span>
+            </div>
+
+            <div class="summary-row">
+              <span>Shipping</span>
+              <span id="co-shipping">Free</span>
+            </div>
+
+            <div class="summary-row">
+              <span>Estimated Tax (8%)</span>
+              <span id="co-tax">$0.00</span>
+            </div>
+
+            <div class="summary-row total">
+              <span>Total Amount</span>
+              <span id="co-total">$0.00</span>
+            </div>
+
+            <div class="card card-body mt-6" style="padding: var(--space-3); background-color: var(--color-bg-subtle);">
+              <div class="flex items-center gap-2 text-xs text-secondary">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: var(--color-success); flex-shrink: 0;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>30-day money back guarantee & instant order tracking.</span>
+              </div>
+            </div>
+
+          </aside>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container text-center text-xs text-secondary">
+      &copy; 2026 AURA Store Inc. All payments processed via secure 256-bit tokenized gateway.
+    </div>
+  </footer>
+
+  <!-- Modular Scripts -->
+  <script type="module">
+    import { 
+      getCart, 
+      getCartSubtotal, 
+      getCartShipping, 
+      getCartTax, 
+      getCartGrandTotal, 
+      getCartItemCount, 
+      clearCart 
+    } from '../js/cart.js';
+    import { createOrder } from '../js/firestore.js';
+    import { getCurrentUser, onUserAuthStateChanged } from '../js/auth.js';
+    import { formatCurrency, formatProductImage, showToast } from '../js/utils.js';
+
+    const contentArea = document.getElementById('checkout-content-area');
+    const itemsList = document.getElementById('checkout-items-list');
+    const checkoutCountBadge = document.getElementById('checkout-count-badge');
+    const coSubtotal = document.getElementById('co-subtotal');
+    const coShipping = document.getElementById('co-shipping');
+    const coTax = document.getElementById('co-tax');
+    const coTotal = document.getElementById('co-total');
+    const btnSubmitTotal = document.getElementById('btn-submit-total');
+    const checkoutForm = document.getElementById('checkout-form');
+    const btnSubmitOrder = document.getElementById('btn-submit-order');
+    const authStatusPill = document.getElementById('auth-status-pill');
+
+    let activeUser = null;
+
+    // Check Auth State and Protect Customer Page
+    function checkAuthProtection() {
+      activeUser = getCurrentUser();
+
+      if (!activeUser) {
+        contentArea.innerHTML = `
+          <div class="auth-gate-card">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="text-muted" style="margin: 0 auto 16px auto; color: var(--color-accent);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <h2 class="text-2xl font-bold mb-2">Customer Account Required</h2>
+            <p class="text-sm text-secondary mb-6">
+              Please sign in or create an account to proceed with secure checkout and order tracking.
+            </p>
+            <div class="flex flex-col gap-3">
+              <a href="login.html?redirect=checkout.html" class="btn btn-primary btn-lg">Sign In to Continue &rarr;</a>
+              <a href="signup.html?redirect=checkout.html" class="btn btn-outline btn-lg">Create New Account</a>
+              <a href="cart.html" class="text-xs text-secondary hover:underline mt-2">&larr; Return to Shopping Bag</a>
+            </div>
+          </div>
+        `;
+        return false;
+      }
+
+      // Pre-fill user contact information if logged in
+      const nameInput = document.getElementById('cust-fullname');
+      const emailInput = document.getElementById('cust-email');
+
+      if (nameInput && !nameInput.value && activeUser.displayName) {
+        nameInput.value = activeUser.displayName;
+      }
+      if (emailInput && !emailInput.value && activeUser.email) {
+        emailInput.value = activeUser.email;
+      }
+
+      if (authStatusPill) {
+        authStatusPill.innerHTML = `
+          <span class="badge badge-success text-xs">
+            Signed in as ${activeUser.email}
+          </span>
+        `;
+      }
+
+      return true;
+    }
+
+    // Initialize Checkout View & Order Summary
+    function initCheckout() {
+      const isAuthValid = checkAuthProtection();
+      if (!isAuthValid) return;
+
+      const items = getCart();
+
+      // Empty Cart Check
+      if (items.length === 0) {
+        contentArea.innerHTML = `
+          <div class="empty-checkout-prompt">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="text-muted" style="margin: 0 auto 16px auto;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <h2 class="text-2xl font-bold mb-2">Your shopping bag is empty</h2>
+            <p class="text-sm text-secondary mb-6">You need at least one product in your bag before proceeding to checkout.</p>
+            <a href="products.html" class="btn btn-primary btn-lg">Browse Products &rarr;</a>
+          </div>
+        `;
+        return;
+      }
+
+      // Calculations using reduce()
+      const totalCount = getCartItemCount();
+      const subtotal = getCartSubtotal();
+      const shipping = getCartShipping(subtotal);
+      const tax = getCartTax(subtotal);
+      const total = getCartGrandTotal();
+
+      // Update Summary Sidebar
+      if (checkoutCountBadge) checkoutCountBadge.textContent = `${totalCount} item${totalCount === 1 ? '' : 's'}`;
+      if (coSubtotal) coSubtotal.textContent = formatCurrency(subtotal);
+      if (coShipping) coShipping.innerHTML = shipping === 0 ? '<span class="badge badge-success">Free</span>' : formatCurrency(shipping);
+      if (coTax) coTax.textContent = formatCurrency(tax);
+      if (coTotal) coTotal.textContent = formatCurrency(total);
+      if (btnSubmitTotal) btnSubmitTotal.textContent = formatCurrency(total);
+
+      // Render Item rows using Array.prototype.map()
+      if (itemsList) {
+        itemsList.innerHTML = items.map(item => `
+          <div class="flex items-center justify-between gap-3 text-sm">
+            <div class="flex items-center gap-3">
+              <img src="${formatProductImage(item.image)}" alt="${item.name}" class="checkout-item-thumb" onerror="this.src='../assets/product_tee.png'">
+              <div>
+                <div class="font-medium text-xs">${item.name}</div>
+                <div class="text-xs text-secondary">
+                  Qty: ${item.quantity} ${item.selectedSize ? `&bull; Size: ${item.selectedSize}` : ''}
+                </div>
+              </div>
+            </div>
+            <span class="font-semibold text-xs">${formatCurrency((item.price || 0) * (item.quantity || 1))}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Input Validation Helpers
+    function validateField(input, errorElement, isValid) {
+      if (!isValid) {
+        input.classList.add('form-error');
+        if (errorElement) errorElement.classList.add('visible');
+        return false;
+      } else {
+        input.classList.remove('form-error');
+        if (errorElement) errorElement.classList.remove('visible');
+        return true;
+      }
+    }
+
+    // Form Submission & Order Simulation
+    if (checkoutForm) {
+      checkoutForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Retrieve field values
+        const nameInput = document.getElementById('cust-fullname');
+        const emailInput = document.getElementById('cust-email');
+        const phoneInput = document.getElementById('cust-phone');
+        const addressInput = document.getElementById('ship-address');
+        const suiteInput = document.getElementById('ship-suite');
+        const cityInput = document.getElementById('ship-city');
+        const stateInput = document.getElementById('ship-state');
+        const zipInput = document.getElementById('ship-zip');
+        const ccNumInput = document.getElementById('cc-number');
+        const ccExpInput = document.getElementById('cc-expiry');
+        const ccCvcInput = document.getElementById('cc-cvc');
+
+        // Validation Checks
+        let valid = true;
+        
+        valid = validateField(nameInput, document.getElementById('err-fullname'), nameInput.value.trim().length >= 2) && valid;
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        valid = validateField(emailInput, document.getElementById('err-email'), emailRegex.test(emailInput.value.trim())) && valid;
+        
+        valid = validateField(phoneInput, document.getElementById('err-phone'), phoneInput.value.trim().length >= 7) && valid;
+        valid = validateField(addressInput, document.getElementById('err-address'), addressInput.value.trim().length >= 4) && valid;
+        valid = validateField(cityInput, document.getElementById('err-city'), cityInput.value.trim().length >= 2) && valid;
+        valid = validateField(stateInput, document.getElementById('err-state'), stateInput.value.trim().length >= 2) && valid;
+        valid = validateField(zipInput, document.getElementById('err-zip'), zipInput.value.trim().length >= 3) && valid;
+        
+        // Card validation
+        valid = validateField(ccNumInput, document.getElementById('err-cc-number'), ccNumInput.value.replace(/\s+/g, '').length >= 12) && valid;
+        valid = validateField(ccExpInput, document.getElementById('err-cc-expiry'), ccExpInput.value.trim().length >= 4) && valid;
+        valid = validateField(ccCvcInput, document.getElementById('err-cc-cvc'), ccCvcInput.value.trim().length >= 3) && valid;
+
+        if (!valid) {
+          showToast('Please complete all required fields.', 'danger');
+          return;
+        }
+
+        // Show Processing State
+        btnSubmitOrder.disabled = true;
+        btnSubmitOrder.innerHTML = `
+          <svg class="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation: spin 1s linear infinite; display: inline-block;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Processing Order...
+        `;
+
+        const currentCart = getCart();
+        const subtotal = getCartSubtotal();
+        const shipping = getCartShipping(subtotal);
+        const tax = getCartTax(subtotal);
+        const grandTotal = getCartGrandTotal();
+
+        // Order Payload for Cloud Firestore
+        const orderPayload = {
+          userId: activeUser?.uid || null,
+          items: currentCart.map(item => ({
+            id: item?.id || '',
+            name: item?.name || item?.title || '',
+            price: item?.price || 0,
+            quantity: item?.quantity || 1,
+            image: item?.image || '',
+            selectedSize: item?.selectedSize || null
+          })),
+          total: grandTotal,
+          pricing: {
+            subtotal,
+            shipping,
+            tax,
+            grandTotal
+          },
+          customer: {
+            name: nameInput.value.trim(),
+            email: emailInput.value.trim(),
+            phone: phoneInput.value.trim()
+          },
+          shippingAddress: {
+            street: addressInput.value.trim(),
+            suite: suiteInput ? suiteInput.value.trim() : '',
+            city: cityInput.value.trim(),
+            state: stateInput.value.trim(),
+            zip: zipInput.value.trim(),
+            country: 'United States'
+          },
+          status: 'Pending',
+          createdAt: new Date().toISOString()
+        };
+
+        try {
+          // Write to Cloud Firestore
+          const orderResult = await createOrder(orderPayload);
+          const orderId = orderResult?.id || ('ORD-' + Math.floor(10000 + Math.random() * 90000));
+
+          // Clear local cart only after successful Firestore write
+          clearCart();
+
+          // Render In-Place Order Confirmation Screen
+          renderConfirmationScreen(orderId, orderPayload);
+
+        } catch (orderErr) {
+          console.error('[Checkout] Firestore write error:', orderErr);
+          btnSubmitOrder.disabled = false;
+          btnSubmitOrder.innerHTML = `Complete Order &bull; <span id="btn-submit-total">${formatCurrency(grandTotal)}</span>`;
+          showToast(`Order submission failed: ${orderErr.message || 'Database write error'}`, 'danger');
+        }
+      });
+    }
+
+    // Render Order Confirmation Screen
+    function renderConfirmationScreen(orderId, orderData) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      contentArea.innerHTML = `
+        <div class="confirmation-view">
+          
+          <div class="confirmation-icon-wrap">
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+
+          <div class="text-center mb-8">
+            <span class="badge badge-success mb-2">Order Confirmed</span>
+            <h1 class="text-3xl font-bold mb-2">Thank you, ${orderData.customer.name}!</h1>
+            <p class="text-sm text-secondary" style="max-width: 480px; margin: 0 auto;">
+              Your order <strong class="text-primary">#${orderId}</strong> has been successfully placed. We have sent a confirmation email to <strong>${orderData.customer.email}</strong>.
+            </p>
+          </div>
+
+          <div class="card card-body mb-6" style="background-color: var(--color-bg-subtle);">
+            <div class="grid grid-cols-2 gap-4 text-xs">
+              <div>
+                <span class="text-secondary font-medium block mb-1">Shipping Destination</span>
+                <strong class="text-primary block">${orderData.customer.name}</strong>
+                <span>${orderData.shippingAddress.street} ${orderData.shippingAddress.suite || ''}</span><br>
+                <span>${orderData.shippingAddress.city}, ${orderData.shippingAddress.state} ${orderData.shippingAddress.zip}</span>
+              </div>
+              <div>
+                <span class="text-secondary font-medium block mb-1">Estimated Delivery</span>
+                <strong class="text-primary block">3 – 5 Business Days</strong>
+                <span>Carbon-Neutral Courier</span><br>
+                <span class="badge badge-neutral mt-2">Status: ${orderData.status}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items Breakdown -->
+          <h2 class="text-base font-bold mb-3">Order Summary</h2>
+          <div class="card mb-6">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th class="text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${orderData.items.map(item => `
+                    <tr>
+                      <td>
+                        <div class="flex items-center gap-3">
+                          <img src="${item.image}" alt="${item.name}" style="width: 36px; height: 36px; object-fit: cover; border-radius: var(--radius-sm);">
+                          <div>
+                            <div class="font-medium text-xs">${item.name}</div>
+                            ${item.selectedSize ? `<div class="text-xs text-secondary">Size: ${item.selectedSize}</div>` : ''}
+                          </div>
+                        </div>
+                      </td>
+                      <td class="text-xs">${item.quantity}</td>
+                      <td class="font-semibold text-xs text-right">${formatCurrency((item.price || 0) * (item.quantity || 1))}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="card-footer">
+              <div class="flex justify-between items-center text-sm font-bold">
+                <span>Grand Total Paid:</span>
+                <span class="text-lg">${formatCurrency(orderData.pricing.grandTotal)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-center gap-3">
+            <a href="products.html" class="btn btn-primary">Continue Shopping &rarr;</a>
+            <button onclick="window.print()" class="btn btn-outline">Print Order Receipt</button>
+          </div>
+
+        </div>
+      `;
+
+      showToast(`Order #${orderId} confirmed successfully!`, 'success');
+    }
+
+    onUserAuthStateChanged(() => {
+      initCheckout();
+    });
+  </script>
+</body>
+</html>

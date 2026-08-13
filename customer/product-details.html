@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details | AURA</title>
+  <meta name="description" content="View product specifications, materials, sizing, and availability.">
+  <link rel="stylesheet" href="../css/customer.css">
+  <style>
+    /* Product Details specific styles */
+    .details-gallery-box {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-6));
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .details-main-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .details-gallery-box:hover .details-main-img {
+      transform: scale(1.03);
+    }
+
+    .option-btn {
+      padding: 0.45rem 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-surface);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .option-btn:hover {
+      border-color: var(--color-border-hover);
+    }
+
+    .option-btn.active {
+      background-color: var(--color-primary);
+      color: var(--color-text-inverse);
+      border-color: var(--color-primary);
+    }
+
+    .qty-counter {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background-color: var(--color-bg-surface);
+      overflow: hidden;
+    }
+
+    .qty-btn {
+      background: none;
+      border: none;
+      padding: 0.6rem 0.9rem;
+      font-size: var(--text-base);
+      cursor: pointer;
+      color: var(--color-text-primary);
+      transition: background-color var(--transition-fast);
+      user-select: none;
+    }
+
+    .qty-btn:hover {
+      background-color: var(--color-bg-subtle);
+    }
+
+    .qty-input {
+      width: 48px;
+      border: none;
+      text-align: center;
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--color-text-primary);
+      outline: none;
+    }
+
+    .spec-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    .spec-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-accent);
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    .not-found-box {
+      text-align: center;
+      padding: var(--space-16) var(--space-6);
+      background-color: var(--color-bg-surface);
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-xl);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="container header-container">
+      
+      <div class="header-left">
+        <a href="index.html" class="brand-logo" id="header-brand-logo">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span>AURA</span>
+        </a>
+
+        <nav class="nav-menu" aria-label="Main Navigation">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="products.html" class="nav-link active">Products</a>
+          
+          <div class="nav-item-dropdown">
+            <a href="products.html" class="nav-link flex items-center gap-1">
+              <span>Categories</span>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </a>
+            <div class="nav-dropdown-menu">
+              <a href="products.html?category=apparel" class="nav-dropdown-item">Apparel</a>
+              <a href="products.html?category=footwear" class="nav-dropdown-item">Footwear</a>
+              <a href="products.html?category=accessories" class="nav-dropdown-item">Accessories</a>
+              <a href="products.html?category=carry" class="nav-dropdown-item">Carry & Bags</a>
+            </div>
+          </div>
+
+          <a href="products.html?filter=new" class="nav-link">New Arrivals</a>
+        </nav>
+      </div>
+
+      <!-- Search Input -->
+      <form class="header-search-form" id="header-search-form" action="products.html" method="GET">
+        <svg class="header-search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input 
+          type="search" 
+          name="q" 
+          id="global-search-input" 
+          class="header-search-input" 
+          placeholder="Search products..." 
+          autocomplete="off"
+        >
+      </form>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm" id="nav-account-link">Account</a>
+        
+        <a href="cart.html" class="cart-button" id="nav-cart-btn" aria-label="Shopping Cart">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span class="cart-badge" id="cart-count-badge">0</span>
+        </a>
+
+        <button class="mobile-nav-toggle" id="mobile-toggle-btn" aria-label="Toggle Menu">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-menu-drawer" id="mobile-drawer">
+      <form action="products.html" method="GET" class="w-full mb-2">
+        <input type="search" name="q" placeholder="Search products..." class="form-control text-sm">
+      </form>
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="products.html" class="nav-link active">All Products</a>
+      <a href="products.html?category=apparel" class="nav-link">&mdash; Apparel</a>
+      <a href="products.html?category=footwear" class="nav-link">&mdash; Footwear</a>
+      <a href="products.html?category=accessories" class="nav-link">&mdash; Accessories</a>
+      <a href="products.html?category=carry" class="nav-link">&mdash; Carry & Bags</a>
+      <a href="login.html" class="nav-link">Account & Login</a>
+      <a href="../admin/dashboard.html" class="btn btn-outline btn-sm mt-2">Admin Portal</a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      
+      <!-- Breadcrumb Navigation -->
+      <nav class="mb-8 text-sm text-secondary flex items-center gap-2" id="breadcrumb-nav">
+        <a href="index.html" class="hover:underline">Home</a>
+        <span>/</span>
+        <a href="products.html" class="hover:underline">Products</a>
+        <span>/</span>
+        <span class="text-primary font-medium" id="breadcrumb-title">Product Details</span>
+      </nav>
+
+      <!-- Dynamic Product Container (Populated via JS) -->
+      <div id="product-view-container">
+        <!-- Rendered by script -->
+      </div>
+
+      <!-- Related Products Section -->
+      <section class="mt-16 pt-12 border-t" style="border-color: var(--color-border);" id="related-section">
+        <div class="section-header mb-8">
+          <div>
+            <h2 class="section-title">You May Also Like</h2>
+            <p class="section-subtitle">Complementary essentials from our collection.</p>
+          </div>
+          <a href="products.html" class="btn btn-outline btn-sm">Explore All &rarr;</a>
+        </div>
+
+        <div class="grid grid-cols-4 gap-6" id="related-products-grid">
+          <!-- Injected via JS using .filter() -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a href="index.html" class="brand-logo mb-4">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>AURA</span>
+          </a>
+          <p class="text-sm text-secondary mb-4" style="max-width: 280px;">
+            Modern, minimal essentials engineered for longevity and everyday elegance.
+          </p>
+        </div>
+        <div>
+          <div class="footer-column-title">Shop</div>
+          <div class="footer-links">
+            <a href="products.html" class="footer-link">All Products</a>
+            <a href="products.html?category=apparel" class="footer-link">Apparel</a>
+            <a href="products.html?category=accessories" class="footer-link">Accessories</a>
+            <a href="products.html?category=footwear" class="footer-link">Footwear</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-column-title">Customer Care</div>
+          <div class="footer-links">
+            <a href="cart.html" class="footer-link">View Cart</a>
+            <a href="checkout.html" class="footer-link">Checkout</a>
+            <a href="login.html" class="footer-link">Account</a>
+            <a href="signup.html" class="footer-link">Sign Up</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-column-title">Administration</div>
+          <div class="footer-links">
+            <a href="../admin/dashboard.html" class="footer-link font-medium" style="color: var(--color-accent);">Admin Dashboard &rarr;</a>
+            <a href="../admin/products.html" class="footer-link">Product Manager</a>
+            <a href="../admin/orders.html" class="footer-link">Order Manager</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 AURA Store Inc. All rights reserved.</span>
+        <span>Built with ES Modules & Firebase</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modular Scripts -->
+  <script type="module">
+    import { getProductById, getRelatedProducts } from '../js/firestore.js';
+    import { addToCart, getCartItemCount } from '../js/cart.js';
+    import { initNavbarAuth } from '../js/auth.js';
+    import { formatCurrency, formatProductImage, showToast, getQueryParams } from '../js/utils.js';
+
+    // Initialize Navbar Auth State
+    initNavbarAuth();
+
+    // State
+    let currentProduct = null;
+    let selectedQuantity = 1;
+    let selectedSize = '';
+    let selectedColor = '';
+
+    // DOM Elements
+    const viewContainer = document.getElementById('product-view-container');
+    const breadcrumbTitle = document.getElementById('breadcrumb-title');
+    const relatedContainer = document.getElementById('related-products-grid');
+    const relatedSection = document.getElementById('related-section');
+    const cartBadge = document.getElementById('cart-count-badge');
+
+    function updateBadge() {
+      if (cartBadge) cartBadge.textContent = getCartItemCount();
+    }
+    updateBadge();
+    window.addEventListener('cart-updated', updateBadge);
+
+    // Render Shimmer Skeleton for Product Details
+    function renderDetailSkeleton() {
+      viewContainer.innerHTML = `
+        <div class="product-details-grid">
+          <div class="details-gallery-box" style="background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; aspect-ratio: 1/1;"></div>
+          <div class="product-info-panel" style="display: flex; flex-direction: column; gap: var(--space-3);">
+            <div style="height: 16px; width: 25%; background: #e4e4e7; border-radius: var(--radius-xs);"></div>
+            <div style="height: 32px; width: 85%; background: #e4e4e7; border-radius: var(--radius-xs);"></div>
+            <div style="height: 24px; width: 30%; background: #e4e4e7; border-radius: var(--radius-xs);"></div>
+            <div style="height: 60px; width: 100%; background: #e4e4e7; border-radius: var(--radius-xs); margin-top: 12px;"></div>
+            <div style="height: 44px; width: 60%; background: #e4e4e7; border-radius: var(--radius-xs); margin-top: 16px;"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Product Details from Cloud Firestore
+    async function renderProductDetails() {
+      renderDetailSkeleton();
+
+      const params = getQueryParams();
+      const productId = params.id || 'prod-101';
+
+      try {
+        // Fetch document directly from Cloud Firestore
+        currentProduct = await getProductById(productId);
+
+        if (!currentProduct) {
+          breadcrumbTitle.textContent = 'Product Not Found';
+          if (relatedSection) relatedSection.style.display = 'none';
+          
+          viewContainer.innerHTML = `
+            <div class="not-found-box">
+              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="text-muted" style="margin: 0 auto 16px auto;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <h1 class="text-2xl font-bold mb-2">Product Not Found</h1>
+              <p class="text-sm text-secondary mb-6">
+                The product document was not found in Firestore or may have been archived.
+              </p>
+              <a href="products.html" class="btn btn-primary">Return to Catalog &rarr;</a>
+            </div>
+          `;
+          return;
+        }
+
+        // Destructure Firestore product object with optional chaining & fallbacks
+        const {
+          id,
+          title = 'Product',
+          price = 0,
+          category = 'General',
+          image = '../assets/product_tee.png',
+          description = '',
+          details = [],
+          rating = 5.0,
+          reviewsCount = 12,
+          stock = 10,
+          badge = null,
+          sizes = ['Standard'],
+          colors = ['Default']
+        } = currentProduct;
+
+        // Update Document Title & Breadcrumbs
+        document.title = `${title} | AURA`;
+        breadcrumbTitle.textContent = title;
+
+        selectedSize = sizes?.[0] || 'Standard';
+        selectedColor = colors?.[0] || 'Default';
+
+        // Render Spec View
+        viewContainer.innerHTML = `
+          <div class="product-details-grid">
+            
+            <!-- Image Gallery Column -->
+            <div>
+              <div class="details-gallery-box">
+                <img 
+                  src="${formatProductImage(image)}" 
+                  alt="${title}" 
+                  class="details-main-img" 
+                  id="main-product-img"
+                  onerror="this.src='../assets/product_tee.png'"
+                >
+              </div>
+            </div>
+
+            <!-- Product Details & Purchase Form Column -->
+            <div class="product-info-panel">
+              
+              <div class="flex items-center gap-2 mb-2">
+                <span class="badge badge-accent" style="text-transform: uppercase;">${category}</span>
+                ${badge ? `<span class="badge badge-neutral">${badge}</span>` : ''}
+                <span class="text-xs text-secondary ml-auto">DOC ID: ${id}</span>
+              </div>
+
+              <h1 class="text-3xl font-bold mb-2">${title}</h1>
+              
+              <!-- Rating & Reviews -->
+              <div class="flex items-center gap-2 mb-4 text-xs text-secondary">
+                <span class="font-bold text-primary">★ ${(rating || 5).toFixed(1)}</span>
+                <span>•</span>
+                <span>(${reviewsCount || 0} verified reviews)</span>
+              </div>
+
+              <div class="text-3xl font-bold mb-5">${formatCurrency(price)}</div>
+
+              <p class="text-secondary mb-6" style="line-height: var(--leading-relaxed);">
+                ${description}
+              </p>
+
+              <hr style="border: 0; border-top: 1px solid var(--color-border); margin: var(--space-6) 0;">
+
+              <!-- Sizing Options -->
+              ${sizes && sizes.length > 0 ? `
+                <div class="form-group mb-5">
+                  <div class="flex justify-between items-center mb-2">
+                    <label class="form-label mb-0">Select Option / Size</label>
+                    <span class="text-xs text-secondary" id="active-size-label">${selectedSize}</span>
+                  </div>
+                  <div class="flex flex-wrap gap-2" id="sizes-group">
+                    ${sizes.map((s, idx) => `
+                      <button type="button" class="option-btn ${idx === 0 ? 'active' : ''}" data-size="${s}">${s}</button>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Quantity & Actions -->
+              <div class="form-group mb-6">
+                <label class="form-label mb-2">Quantity</label>
+                <div class="flex items-center gap-4">
+                  <div class="qty-counter">
+                    <button type="button" class="qty-btn" id="qty-minus" aria-label="Decrease quantity">&minus;</button>
+                    <input type="number" id="qty-val" class="qty-input" value="1" min="1" max="${stock}" readonly>
+                    <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">&plus;</button>
+                  </div>
+                  <span class="text-xs text-secondary">
+                    ${stock < 10 
+                      ? `<span class="text-warning font-medium">Only ${stock} units remaining in Firestore</span>` 
+                      : `${stock} units available in stock`}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Primary Buttons -->
+              <div class="flex gap-3 mb-8">
+                <button id="detail-add-to-cart" class="btn btn-primary btn-lg" style="flex: 1.2;">
+                  Add to Cart &bull; <span id="btn-price-calc">${formatCurrency(price)}</span>
+                </button>
+                <button id="detail-buy-now" class="btn btn-secondary btn-lg" style="flex: 0.8;">
+                  Buy Now
+                </button>
+              </div>
+
+              <!-- Specifications List -->
+              ${details && details.length > 0 ? `
+                <div class="card card-body mb-6">
+                  <h3 class="text-sm font-semibold mb-3">Material & Construction Details</h3>
+                  <div class="flex flex-col gap-2">
+                    ${details.map(d => `
+                      <div class="spec-item">
+                        <span class="spec-dot"></span>
+                        <span>${d}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Guarantees -->
+              <div class="flex flex-col gap-2 text-xs text-secondary pt-2">
+                <div class="flex items-center justify-between">
+                  <span>Free carbon-neutral shipping</span>
+                  <span class="text-primary font-medium">Orders $100+</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span>Effortless returns</span>
+                  <span class="text-primary font-medium">30 days guaranteed</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        `;
+
+        // Attach Size selector handlers
+        document.querySelectorAll('#sizes-group .option-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('#sizes-group .option-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedSize = btn.dataset.size;
+            const label = document.getElementById('active-size-label');
+            if (label) label.textContent = selectedSize;
+          });
+        });
+
+        // Quantity Handler
+        const qtyInput = document.getElementById('qty-val');
+        const minusBtn = document.getElementById('qty-minus');
+        const plusBtn = document.getElementById('qty-plus');
+        const calcPriceSpan = document.getElementById('btn-price-calc');
+
+        function updateCalc() {
+          if (qtyInput) qtyInput.value = selectedQuantity;
+          if (calcPriceSpan) {
+            calcPriceSpan.textContent = formatCurrency(price * selectedQuantity);
+          }
+        }
+
+        if (minusBtn) {
+          minusBtn.addEventListener('click', () => {
+            if (selectedQuantity > 1) {
+              selectedQuantity--;
+              updateCalc();
+            }
+          });
+        }
+
+        if (plusBtn) {
+          plusBtn.addEventListener('click', () => {
+            if (selectedQuantity < stock) {
+              selectedQuantity++;
+              updateCalc();
+            }
+          });
+        }
+
+        // Add to Cart Action
+        const addToCartBtn = document.getElementById('detail-add-to-cart');
+        if (addToCartBtn) {
+          addToCartBtn.addEventListener('click', () => {
+            addToCart({
+              id,
+              name: title,
+              price,
+              category,
+              image,
+              selectedSize
+            }, selectedQuantity);
+            
+            updateBadge();
+            showToast(`Added ${selectedQuantity}x "${title}" to your shopping bag.`, 'success');
+          });
+        }
+
+        // Buy Now Action
+        const buyNowBtn = document.getElementById('detail-buy-now');
+        if (buyNowBtn) {
+          buyNowBtn.addEventListener('click', () => {
+            addToCart({
+              id,
+              name: title,
+              price,
+              category,
+              image,
+              selectedSize
+            }, selectedQuantity);
+            
+            window.location.href = 'checkout.html';
+          });
+        }
+
+        // Render Related Products from Firestore
+        renderRelatedProducts(id, category);
+
+      } catch (err) {
+        console.error('[Firestore] Error fetching product from Firestore:', err);
+        viewContainer.innerHTML = `
+          <div class="not-found-box">
+            <h2 class="text-xl font-bold mb-2 text-danger">Error Loading Product</h2>
+            <p class="text-sm text-secondary mb-4">${err.message || 'Unable to connect to Cloud Firestore.'}</p>
+            <a href="products.html" class="btn btn-primary">Return to Catalog</a>
+          </div>
+        `;
+      }
+    }
+
+    // Render Related Products from Cloud Firestore
+    async function renderRelatedProducts(activeId, category) {
+      try {
+        const related = await getRelatedProducts(activeId, category, 4);
+        
+        if (!related || related.length === 0) {
+          if (relatedSection) relatedSection.style.display = 'none';
+          return;
+        }
+
+        if (relatedSection) relatedSection.style.display = 'block';
+
+        relatedContainer.innerHTML = related.map(product => {
+          const { id, title, price, category: cat, image, badge } = product || {};
+          return `
+            <article class="product-card" data-product-id="${id}">
+              <div class="product-image-wrap">
+                ${badge ? `<span class="badge badge-neutral product-badge-overlay">${badge}</span>` : ''}
+                <img src="${formatProductImage(image)}" alt="${title}" loading="lazy" onerror="this.src='../assets/product_tee.png'">
+              </div>
+              <div class="product-content">
+                <span class="product-category">${cat}</span>
+                <h3 class="product-name">
+                  <a href="product-details.html?id=${id}">${title}</a>
+                </h3>
+                <div class="product-footer">
+                  <span class="product-price">${formatCurrency(price)}</span>
+                  <a href="product-details.html?id=${id}" class="btn btn-outline btn-sm">View Item</a>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+      } catch (err) {
+        console.warn('[Firestore] Error loading related products:', err);
+        if (relatedSection) relatedSection.style.display = 'none';
+      }
+    }
+
+    // Mobile drawer toggle
+    const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+    if (mobileToggleBtn && mobileDrawer) {
+      mobileToggleBtn.addEventListener('click', () => {
+        mobileDrawer.classList.toggle('open');
+      });
+    }
+
+    renderProductDetails();
+  </script>
+</body>
+</html>

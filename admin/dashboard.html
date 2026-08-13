@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Overview | AURA</title>
+  <meta name="description" content="Manage store inventory, view live sales metrics, and monitor incoming orders.">
+  <link rel="stylesheet" href="../css/admin.css">
+  <style>
+    .skeleton-metric {
+      height: 32px;
+      width: 60%;
+      background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-xs);
+      margin: var(--space-2) 0;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-layout" id="admin-app-root">
+    
+    <!-- Mobile Backdrop -->
+    <div class="admin-sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- Admin Sidebar Navigation -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      
+      <div class="admin-sidebar-header">
+        <a href="dashboard.html" class="admin-logo">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span>AURA <span style="font-size: var(--text-xs); font-weight: normal; color: var(--color-text-secondary);">&bull; Studio</span></span>
+        </a>
+      </div>
+
+      <nav class="admin-sidebar-nav">
+        
+        <a href="dashboard.html" class="admin-nav-item active">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>Overview</span>
+        </a>
+
+        <a href="products.html" class="admin-nav-item">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <span>Products</span>
+        </a>
+
+        <a href="orders.html" class="admin-nav-item">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+          </svg>
+          <span>Orders</span>
+        </a>
+
+        <div style="margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--color-border-subtle);">
+          <span class="text-xs text-muted uppercase font-semibold" style="padding-left: var(--space-3); letter-spacing: 0.05em;">Storefront</span>
+          <a href="../customer/index.html" target="_blank" class="admin-nav-item mt-1">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            <span>Live Storefront &rarr;</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <button id="btn-admin-logout" class="btn btn-ghost btn-sm w-full justify-start text-danger" style="color: var(--color-danger);">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: var(--space-2);">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Sign Out
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- Admin Main Body Area -->
+    <div class="admin-main">
+      
+      <!-- Topbar Header -->
+      <header class="admin-topbar">
+        
+        <div class="admin-topbar-left">
+          <button class="admin-mobile-toggle" id="mobile-sidebar-toggle" aria-label="Toggle Navigation">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          <div class="flex items-center gap-2 text-sm text-secondary">
+            <span>Admin</span>
+            <span>/</span>
+            <span class="text-primary font-semibold">Overview & Metrics</span>
+          </div>
+        </div>
+
+        <div class="admin-topbar-right">
+          
+          <div class="admin-user-profile" id="admin-profile-pill">
+            <div class="admin-avatar" id="admin-avatar-initial">A</div>
+            <div class="flex flex-col text-left">
+              <span class="text-xs font-bold" id="admin-display-name">Admin User</span>
+              <span class="text-xs text-secondary" id="admin-email-tag" style="font-size: 10px;">admin@aurastore.com</span>
+            </div>
+            <span class="badge badge-accent ml-2 text-xs" style="font-size: 10px; padding: 2px 6px;">Admin</span>
+          </div>
+
+        </div>
+
+      </header>
+
+      <!-- Main Dashboard Page Content -->
+      <main class="admin-page-content" id="admin-main-content">
+        
+        <div class="admin-page-header">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight">Performance Overview</h1>
+            <p class="text-sm text-secondary">Real-time aggregate data synced directly from Cloud Firestore.</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button id="btn-refresh-metrics" class="btn-admin-secondary">
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Refresh Data</span>
+            </button>
+            <a href="products.html" class="btn-admin-primary">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>+ Add Product</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- 4 Summary KPI Cards Grid (Firestore Aggregates) -->
+        <div class="metrics-grid">
+          
+          <!-- Metric 1: Total Sales -->
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Total Revenue</span>
+              <div class="metric-icon-wrap">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="metric-value" id="metric-total-sales">
+              <div class="skeleton-metric"></div>
+            </div>
+            <div class="metric-sub text-success flex items-center gap-1">
+              <span>●</span> Live Firestore total
+            </div>
+          </div>
+
+          <!-- Metric 2: Total Orders -->
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Total Orders</span>
+              <div class="metric-icon-wrap">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+            </div>
+            <div class="metric-value" id="metric-total-orders">
+              <div class="skeleton-metric"></div>
+            </div>
+            <div class="metric-sub" id="metric-pending-orders">
+              0 orders pending fulfillment
+            </div>
+          </div>
+
+          <!-- Metric 3: Active Catalog Products -->
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Catalog Items</span>
+              <div class="metric-icon-wrap">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+            </div>
+            <div class="metric-value" id="metric-total-products">
+              <div class="skeleton-metric"></div>
+            </div>
+            <div class="metric-sub">
+              Live products in database
+            </div>
+          </div>
+
+          <!-- Metric 4: Registered Customers -->
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Customer Accounts</span>
+              <div class="metric-icon-wrap">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="metric-value" id="metric-total-customers">
+              <div class="skeleton-metric"></div>
+            </div>
+            <div class="metric-sub">
+              Verified accounts
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 2-Column Section: Recent Orders & Inventory Status -->
+        <div class="grid grid-cols-3 gap-6">
+          
+          <!-- Column 1 (2 Cols Span): Recent Orders Table -->
+          <div class="card card-body" style="grid-column: span 2;">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <h2 class="text-base font-bold">Recent Incoming Orders</h2>
+                <p class="text-xs text-secondary">Latest checkout submissions from Cloud Firestore.</p>
+              </div>
+              <a href="orders.html" class="btn btn-ghost btn-sm">View All Orders &rarr;</a>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-orders-tbody">
+                  <tr>
+                    <td colspan="5" class="text-center py-6 text-secondary">
+                      Loading recent orders from Firestore...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Column 2 (1 Col Span): Low Stock Alert & Fast Actions -->
+          <div class="flex flex-col gap-6">
+            
+            <div class="card card-body">
+              <h2 class="text-base font-bold mb-1">Inventory Watchlist</h2>
+              <p class="text-xs text-secondary mb-4">Products with stock under 10 units.</p>
+
+              <div id="low-stock-list" class="flex flex-col gap-3">
+                <div class="text-xs text-secondary py-4 text-center">Checking inventory levels...</div>
+              </div>
+            </div>
+
+            <div class="card card-body" style="background-color: var(--color-bg-subtle);">
+              <h3 class="text-sm font-bold mb-2">Cloud Firestore Sync</h3>
+              <p class="text-xs text-secondary mb-4">
+                All metrics update dynamically across collections without requiring full page rebuilds.
+              </p>
+              <div class="flex gap-2">
+                <a href="products.html" class="btn btn-outline btn-sm w-full text-center">Manage Catalog</a>
+                <a href="orders.html" class="btn btn-outline btn-sm w-full text-center">Manage Orders</a>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- Modular Scripts -->
+  <script type="module">
+    import { getCurrentUser, onUserAuthStateChanged, getUserRole, logoutUser } from '../js/auth.js';
+    import { getDashboardMetrics } from '../js/firestore.js';
+    import { formatCurrency, formatDate, formatProductImage, showToast } from '../js/utils.js';
+
+    // DOM References
+    const adminMainContent = document.getElementById('admin-main-content');
+    const adminDisplayName = document.getElementById('admin-display-name');
+    const adminEmailTag = document.getElementById('admin-email-tag');
+    const adminAvatarInitial = document.getElementById('admin-avatar-initial');
+    const btnLogout = document.getElementById('btn-admin-logout');
+    const btnRefresh = document.getElementById('btn-refresh-metrics');
+
+    // Metrics DOM
+    const metricSales = document.getElementById('metric-total-sales');
+    const metricOrders = document.getElementById('metric-total-orders');
+    const metricProducts = document.getElementById('metric-total-products');
+    const metricCustomers = document.getElementById('metric-total-customers');
+    const metricPending = document.getElementById('metric-pending-orders');
+    const recentOrdersTbody = document.getElementById('recent-orders-tbody');
+    const lowStockList = document.getElementById('low-stock-list');
+
+    // Sidebar Mobile Toggle
+    const mobileToggle = document.getElementById('mobile-sidebar-toggle');
+    const sidebar = document.getElementById('admin-sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+
+    if (mobileToggle && sidebar && backdrop) {
+      mobileToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        backdrop.classList.toggle('open');
+      });
+      backdrop.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('open');
+      });
+    }
+
+    // Role-Based Access Control Gate
+    async function verifyAdminAccess(user) {
+      if (!user) {
+        // Unauthenticated -> redirect to login with return parameter
+        window.location.href = `../customer/login.html?redirect=../admin/dashboard.html`;
+        return false;
+      }
+
+      const role = await getUserRole(user.uid);
+
+      // Check if user is Admin
+      if (role !== 'admin') {
+        showToast('Access denied: Admin permissions required. Redirecting to home...', 'danger');
+        adminMainContent.innerHTML = `
+          <div class="admin-gate-card">
+            <div style="width: 56px; height: 56px; border-radius: var(--radius-full); background: var(--color-danger-subtle); border: 1px solid var(--color-danger-border); color: var(--color-danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+              <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h1 class="text-2xl font-bold mb-2">Administrator Access Required</h1>
+            <p class="text-sm text-secondary mb-4">
+              Your account (<code>${user.email}</code>) does not have administrator privileges. Redirecting to the storefront...
+            </p>
+            <a href="../customer/index.html" class="btn btn-primary btn-sm">Return to Home Page</a>
+          </div>
+        `;
+        setTimeout(() => {
+          window.location.replace('../customer/index.html');
+        }, 1000);
+        return false;
+      }
+
+      // Update Topbar Admin Details
+      const name = user.displayName || user.email.split('@')[0];
+      if (adminDisplayName) adminDisplayName.textContent = name;
+      if (adminEmailTag) adminEmailTag.textContent = user.email;
+      if (adminAvatarInitial) adminAvatarInitial.textContent = name.charAt(0).toUpperCase();
+
+      return true;
+    }
+
+    // Fetch and render dashboard metrics
+    async function loadDashboardData() {
+      try {
+        const metrics = await getDashboardMetrics();
+        const { totalSales, totalOrders, totalProducts, totalCustomers, pendingOrdersCount, recentOrders, lowStockProducts } = metrics;
+
+        // Render KPI values
+        if (metricSales) metricSales.textContent = formatCurrency(totalSales);
+        if (metricOrders) metricOrders.textContent = totalOrders;
+        if (metricProducts) metricProducts.textContent = totalProducts;
+        if (metricCustomers) metricCustomers.textContent = totalCustomers;
+        if (metricPending) {
+          metricPending.innerHTML = pendingOrdersCount > 0 
+            ? `<span class="badge badge-warning text-xs">${pendingOrdersCount} pending action</span>` 
+            : `<span class="text-xs text-secondary">All orders fulfilled</span>`;
+        }
+
+        // Render Recent Orders
+        if (recentOrdersTbody) {
+          if (!recentOrders || recentOrders.length === 0) {
+            recentOrdersTbody.innerHTML = `
+              <tr>
+                <td colspan="5" class="text-center py-6 text-secondary text-xs">
+                  No orders have been recorded in Cloud Firestore yet.
+                </td>
+              </tr>
+            `;
+          } else {
+            recentOrdersTbody.innerHTML = recentOrders.map(order => {
+              const { id, customer, createdAt, total, status = 'Pending' } = order || {};
+              const badgeClass = status === 'Delivered' ? 'badge-success' : status === 'Pending' ? 'badge-warning' : 'badge-neutral';
+              
+              return `
+                <tr>
+                  <td><strong class="text-xs text-primary">#${id.substring(0, 10)}</strong></td>
+                  <td class="text-xs">
+                    <div class="font-medium">${customer?.name || 'Guest'}</div>
+                    <div class="text-secondary" style="font-size: 10px;">${customer?.email || ''}</div>
+                  </td>
+                  <td class="text-xs text-secondary">${formatDate(createdAt)}</td>
+                  <td class="text-xs font-semibold">${formatCurrency(total || 0)}</td>
+                  <td><span class="badge ${badgeClass} text-xs">${status}</span></td>
+                </tr>
+              `;
+            }).join('');
+          }
+        }
+
+        // Render Low Stock Inventory
+        if (lowStockList) {
+          if (!lowStockProducts || lowStockProducts.length === 0) {
+            lowStockList.innerHTML = `
+              <div class="text-xs text-secondary text-center py-3">All inventory stock levels are healthy.</div>
+            `;
+          } else {
+            lowStockList.innerHTML = lowStockProducts.map(p => `
+              <div class="flex items-center justify-between text-xs py-2 border-b" style="border-color: var(--color-border-subtle);">
+                <div class="flex items-center gap-2">
+                  <img src="${formatProductImage(p.image)}" alt="${p.title}" style="width: 28px; height: 28px; border-radius: var(--radius-sm); object-fit: cover;" onerror="this.src='../assets/product_tee.png'">
+                  <span class="font-medium truncate" style="max-width: 140px;">${p.title}</span>
+                </div>
+                <span class="badge badge-warning text-xs">${p.stock} left</span>
+              </div>
+            `).join('');
+          }
+        }
+
+      } catch (err) {
+        console.error('[Admin] Error loading metrics from Firestore:', err);
+        showToast('Error refreshing metrics from Cloud Firestore.', 'danger');
+      }
+    }
+
+    // Refresh Button Handler
+    if (btnRefresh) {
+      btnRefresh.addEventListener('click', () => {
+        btnRefresh.disabled = true;
+        btnRefresh.textContent = 'Syncing...';
+        loadDashboardData().finally(() => {
+          btnRefresh.disabled = false;
+          btnRefresh.textContent = 'Refresh Data';
+          showToast('Dashboard metrics synchronized.', 'success');
+        });
+      });
+    }
+
+    // Logout Handler
+    if (btnLogout) {
+      btnLogout.addEventListener('click', async () => {
+        await logoutUser();
+        window.location.href = '../customer/login.html';
+      });
+    }
+
+    // Initialize Auth Listener & Load Data
+    onUserAuthStateChanged(async (user) => {
+      const isAuthorized = await verifyAdminAccess(user);
+      if (isAuthorized) {
+        loadDashboardData();
+      }
+    });
+  </script>
+</body>
+</html>

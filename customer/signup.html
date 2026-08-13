@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | AURA</title>
+  <meta name="description" content="Sign up for an AURA account to track orders, save shipping preferences, and access exclusive drops.">
+  <link rel="stylesheet" href="../css/customer.css">
+  <style>
+    .auth-page-bg {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at 50% 0%, #f4f4f5 0%, #fafafa 60%, #f4f4f5 100%);
+    }
+
+    .auth-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-8) var(--space-4);
+    }
+
+    .auth-box-card {
+      width: 100%;
+      max-width: 460px;
+      background-color: #ffffff;
+      border: 1px solid rgba(228, 228, 231, 0.9);
+      border-radius: 20px;
+      padding: var(--space-10) var(--space-8);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 20px 25px -5px rgba(0, 0, 0, 0.02);
+      transition: box-shadow var(--transition-base);
+    }
+
+    .auth-box-card:hover {
+      box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.06);
+    }
+
+    .auth-logo-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background-color: var(--color-primary);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-4) auto;
+      box-shadow: 0 4px 12px rgba(9, 9, 11, 0.15);
+    }
+
+    .auth-logo-badge svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .btn-google {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      background-color: #ffffff;
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 1rem;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .btn-google:hover {
+      background-color: var(--color-bg-subtle);
+      border-color: var(--color-border-hover);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      margin: var(--space-6) 0;
+      color: var(--color-text-muted);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background-color: var(--color-border);
+    }
+
+    .auth-divider span {
+      padding: 0 var(--space-3);
+    }
+
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-icon-prefix {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-muted);
+      pointer-events: none;
+    }
+
+    .input-icon-suffix {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .input-with-icon .form-control {
+      padding-left: 2.35rem;
+      padding-right: 2.35rem;
+    }
+
+    .auth-alert-box {
+      display: none;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+      margin-bottom: var(--space-4);
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .auth-alert-box.visible {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .auth-alert-danger {
+      background-color: var(--color-danger-subtle);
+      border: 1px solid var(--color-danger-border);
+      color: var(--color-danger-text);
+    }
+
+    .auth-alert-success {
+      background-color: var(--color-success-subtle);
+      border: 1px solid var(--color-success-border);
+      color: var(--color-success-text);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="auth-page-bg">
+
+  <!-- Header -->
+  <header class="site-header" style="background: transparent; border-bottom: none;">
+    <div class="container header-container">
+      <a href="index.html" class="brand-logo" id="header-brand-logo">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        </svg>
+        <span>AURA</span>
+      </a>
+
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link">Storefront</a>
+        <a href="products.html" class="nav-link">Catalog</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">Sign In</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="auth-container">
+    <div class="auth-box-card">
+      
+      <!-- Top Brand Icon & Titles -->
+      <div class="text-center mb-6">
+        <div class="auth-logo-badge">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold mb-1 tracking-tight">Create Account</h1>
+        <p class="text-xs text-secondary">Join AURA for seamless checkout and exclusive access.</p>
+      </div>
+
+      <!-- Alert Notification Banner -->
+      <div id="signup-alert" class="auth-alert-box auth-alert-danger">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span id="alert-text"></span>
+      </div>
+
+      <!-- One-Click Google Sign Up Button -->
+      <button type="button" id="btn-google-signup" class="btn-google">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span>Sign up with Google</span>
+      </button>
+
+      <div class="auth-divider">
+        <span>or register with email</span>
+      </div>
+
+      <!-- Registration Form -->
+      <form id="signup-form" novalidate class="flex flex-col gap-3">
+        
+        <div class="form-group mb-0">
+          <label class="form-label" for="signup-name">Full Name *</label>
+          <div class="input-with-icon">
+            <svg class="input-icon-prefix" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <input 
+              type="text" 
+              id="signup-name" 
+              class="form-control" 
+              placeholder="Alex Morgan" 
+              required 
+              autocomplete="name"
+            >
+          </div>
+        </div>
+
+        <div class="form-group mb-0">
+          <label class="form-label" for="signup-email">Email Address *</label>
+          <div class="input-with-icon">
+            <svg class="input-icon-prefix" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <input 
+              type="email" 
+              id="signup-email" 
+              class="form-control" 
+              placeholder="alex@example.com" 
+              required 
+              autocomplete="email"
+            >
+          </div>
+        </div>
+
+        <div class="form-group mb-0">
+          <label class="form-label" for="signup-password">Password *</label>
+          <div class="input-with-icon">
+            <svg class="input-icon-prefix" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <input 
+              type="password" 
+              id="signup-password" 
+              class="form-control" 
+              placeholder="Min 6 characters" 
+              minlength="6" 
+              required 
+              autocomplete="new-password"
+            >
+            <button type="button" class="input-icon-suffix" id="toggle-signup-pwd-btn" aria-label="Toggle password visibility">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group mb-0">
+          <label class="form-label" for="signup-confirm-password">Confirm Password *</label>
+          <div class="input-with-icon">
+            <svg class="input-icon-prefix" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <input 
+              type="password" 
+              id="signup-confirm-password" 
+              class="form-control" 
+              placeholder="Repeat password" 
+              minlength="6" 
+              required 
+              autocomplete="new-password"
+            >
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full mt-2" id="btn-submit-signup">
+          Create Customer Account &rarr;
+        </button>
+
+      </form>
+
+      <!-- Bottom Links -->
+      <div class="mt-6 text-center text-xs text-secondary">
+        Already have an account? 
+        <a href="login.html" id="link-to-login" class="font-medium text-primary hover:underline">Sign In &rarr;</a>
+      </div>
+
+      <div class="mt-4 pt-4 border-t text-center text-xs text-secondary" style="border-color: var(--color-border-subtle);">
+        Protected by Firebase Authentication & 256-bit encryption.
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modular Scripts -->
+  <script type="module">
+    import { signupUser, loginWithGoogle, getCurrentUser } from '../js/auth.js';
+    import { showToast, getQueryParams } from '../js/utils.js';
+
+    const signupForm = document.getElementById('signup-form');
+    const submitBtn = document.getElementById('btn-submit-signup');
+    const googleBtn = document.getElementById('btn-google-signup');
+    const alertBox = document.getElementById('signup-alert');
+    const alertText = document.getElementById('alert-text');
+    const linkToLogin = document.getElementById('link-to-login');
+
+    // Transfer redirect parameter
+    const params = getQueryParams();
+    if (params.redirect && linkToLogin) {
+      linkToLogin.href = `login.html?redirect=${encodeURIComponent(params.redirect)}`;
+    }
+
+    // Auto-redirect if already authenticated
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      window.location.href = params.redirect || 'index.html';
+    }
+
+    function showAlert(message, type = 'danger') {
+      if (!alertBox || !alertText) return;
+      alertBox.className = `auth-alert-box auth-alert-${type} visible`;
+      alertText.textContent = message;
+    }
+
+    function hideAlert() {
+      if (!alertBox) return;
+      alertBox.className = 'auth-alert-box';
+    }
+
+    // Password Visibility Toggle
+    const togglePwdBtn = document.getElementById('toggle-signup-pwd-btn');
+    const pwdInput = document.getElementById('signup-password');
+    const confirmPwdInput = document.getElementById('signup-confirm-password');
+
+    if (togglePwdBtn && pwdInput) {
+      togglePwdBtn.addEventListener('click', () => {
+        const isPassword = pwdInput.type === 'password';
+        pwdInput.type = isPassword ? 'text' : 'password';
+        confirmPwdInput.type = isPassword ? 'text' : 'password';
+      });
+    }
+
+    // Email/Password Registration
+    if (signupForm) {
+      signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideAlert();
+
+        const name = document.getElementById('signup-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = pwdInput.value;
+        const confirmPass = confirmPwdInput.value;
+
+        if (!name || name.length < 2) {
+          showAlert('Please provide your full name.');
+          return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          showAlert('Please provide a valid email address.');
+          return;
+        }
+
+        if (password.length < 6) {
+          showAlert('Password must be at least 6 characters long.');
+          return;
+        }
+
+        if (password !== confirmPass) {
+          showAlert('Passwords do not match. Please verify and re-enter.');
+          return;
+        }
+
+        // Loading State
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+          <svg class="animate-spin" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation: spin 1s linear infinite; display: inline-block;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Creating Account...
+        `;
+
+        try {
+          const user = await signupUser(email, password, name);
+          showAlert('Account created successfully! Redirecting...', 'success');
+          showToast(`Welcome to AURA, ${name}!`, 'success');
+
+          setTimeout(() => {
+            window.location.href = params.redirect || 'index.html';
+          }, 500);
+
+        } catch (err) {
+          showAlert(err.message || 'Failed to create account. Please try again.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create Customer Account →';
+        }
+      });
+    }
+
+    // Google Sign-Up Handler
+    if (googleBtn) {
+      googleBtn.addEventListener('click', async () => {
+        hideAlert();
+        googleBtn.disabled = true;
+        googleBtn.innerHTML = `
+          <svg class="animate-spin" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation: spin 1s linear infinite; display: inline-block;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Connecting to Google...
+        `;
+
+        try {
+          const user = await loginWithGoogle();
+          showAlert('Google registration verified! Redirecting...', 'success');
+          showToast(`Welcome, ${user.displayName || user.email}!`, 'success');
+
+          setTimeout(() => {
+            window.location.href = params.redirect || 'index.html';
+          }, 500);
+
+        } catch (err) {
+          showAlert(err.message || 'Google sign-up could not be completed.');
+          googleBtn.disabled = false;
+          googleBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.26 21.36 7.33 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            <span>Sign up with Google</span>
+          `;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

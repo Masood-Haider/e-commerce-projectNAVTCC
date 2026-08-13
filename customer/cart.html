@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart | AURA</title>
+  <meta name="description" content="Review your selected items and proceed to secure checkout.">
+  <link rel="stylesheet" href="../css/customer.css">
+  <style>
+    .cart-item-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding: var(--space-5) 0;
+      border-bottom: 1px solid var(--color-border-subtle);
+      transition: background-color var(--transition-fast);
+    }
+
+    .cart-item-row:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item-thumb {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-subtle);
+    }
+
+    .cart-qty-ctrl {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background-color: var(--color-bg-surface);
+      overflow: hidden;
+    }
+
+    .cart-qty-btn {
+      background: none;
+      border: none;
+      padding: 0.4rem 0.65rem;
+      font-size: var(--text-sm);
+      cursor: pointer;
+      color: var(--color-text-primary);
+      transition: background-color var(--transition-fast);
+      user-select: none;
+    }
+
+    .cart-qty-btn:hover {
+      background-color: var(--color-bg-subtle);
+    }
+
+    .cart-qty-num {
+      width: 38px;
+      border: none;
+      text-align: center;
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      color: var(--color-text-primary);
+      outline: none;
+    }
+
+    .shipping-progress-bar {
+      background-color: var(--color-bg-subtle);
+      border-radius: var(--radius-full);
+      height: 6px;
+      overflow: hidden;
+      margin: var(--space-2) 0 var(--space-4);
+    }
+
+    .shipping-progress-fill {
+      height: 100%;
+      background-color: var(--color-accent);
+      border-radius: var(--radius-full);
+      transition: width var(--transition-base);
+    }
+
+    .promo-input-group {
+      display: flex;
+      gap: var(--space-2);
+      margin-top: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .empty-cart-view {
+      text-align: center;
+      padding: var(--space-16) var(--space-6);
+      background-color: var(--color-bg-surface);
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-xl);
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 640px) {
+      .cart-item-row {
+        grid-template-columns: auto 1fr;
+        gap: var(--space-3);
+      }
+      .cart-item-details {
+        grid-column: 2 / -1;
+      }
+      .cart-item-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: var(--space-2);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="container header-container">
+      
+      <div class="header-left">
+        <a href="index.html" class="brand-logo" id="header-brand-logo">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span>AURA</span>
+        </a>
+
+        <nav class="nav-menu" aria-label="Main Navigation">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="products.html" class="nav-link">Products</a>
+          
+          <div class="nav-item-dropdown">
+            <a href="products.html" class="nav-link flex items-center gap-1">
+              <span>Categories</span>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </a>
+            <div class="nav-dropdown-menu">
+              <a href="products.html?category=apparel" class="nav-dropdown-item">Apparel</a>
+              <a href="products.html?category=footwear" class="nav-dropdown-item">Footwear</a>
+              <a href="products.html?category=accessories" class="nav-dropdown-item">Accessories</a>
+              <a href="products.html?category=carry" class="nav-dropdown-item">Carry & Bags</a>
+            </div>
+          </div>
+
+          <a href="products.html?filter=new" class="nav-link">New Arrivals</a>
+        </nav>
+      </div>
+
+      <form class="header-search-form" id="header-search-form" action="products.html" method="GET">
+        <svg class="header-search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input 
+          type="search" 
+          name="q" 
+          id="global-search-input" 
+          class="header-search-input" 
+          placeholder="Search products..." 
+          autocomplete="off"
+        >
+      </form>
+
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm" id="nav-account-link">Account</a>
+        
+        <a href="cart.html" class="cart-button active" id="nav-cart-btn" aria-label="Shopping Cart">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span class="cart-badge" id="cart-count-badge">0</span>
+        </a>
+
+        <button class="mobile-nav-toggle" id="mobile-toggle-btn" aria-label="Toggle Menu">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <div class="mobile-menu-drawer" id="mobile-drawer">
+      <form action="products.html" method="GET" class="w-full mb-2">
+        <input type="search" name="q" placeholder="Search products..." class="form-control text-sm">
+      </form>
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="products.html" class="nav-link">All Products</a>
+      <a href="cart.html" class="nav-link active">Shopping Cart</a>
+      <a href="login.html" class="nav-link">Account & Login</a>
+      <a href="../admin/dashboard.html" class="btn btn-outline btn-sm mt-2">Admin Portal</a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      
+      <div class="section-header mb-8">
+        <div>
+          <h1 class="section-title">Shopping Bag</h1>
+          <p class="section-subtitle" id="cart-item-count-label">Review your items before secure checkout.</p>
+        </div>
+        <a href="products.html" class="btn btn-ghost btn-sm">&larr; Continue Shopping</a>
+      </div>
+
+      <!-- Reactive Cart View Container -->
+      <div id="cart-view-container">
+        <!-- Rendered dynamically via JavaScript without page reloads -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a href="index.html" class="brand-logo mb-4">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>AURA</span>
+          </a>
+          <p class="text-sm text-secondary mb-4" style="max-width: 280px;">
+            Modern, minimal essentials engineered for longevity and everyday elegance.
+          </p>
+        </div>
+        <div>
+          <div class="footer-column-title">Shop</div>
+          <div class="footer-links">
+            <a href="products.html" class="footer-link">All Products</a>
+            <a href="products.html?category=apparel" class="footer-link">Apparel</a>
+            <a href="products.html?category=accessories" class="footer-link">Accessories</a>
+            <a href="products.html?category=footwear" class="footer-link">Footwear</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-column-title">Customer Care</div>
+          <div class="footer-links">
+            <a href="cart.html" class="footer-link">View Cart</a>
+            <a href="checkout.html" class="footer-link">Checkout</a>
+            <a href="login.html" class="footer-link">Account</a>
+            <a href="signup.html" class="footer-link">Sign Up</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-column-title">Administration</div>
+          <div class="footer-links">
+            <a href="../admin/dashboard.html" class="footer-link font-medium" style="color: var(--color-accent);">Admin Dashboard &rarr;</a>
+            <a href="../admin/products.html" class="footer-link">Product Manager</a>
+            <a href="../admin/orders.html" class="footer-link">Order Manager</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 AURA Store Inc. All rights reserved.</span>
+        <span>Built with ES Modules & Firebase</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modular Scripts -->
+  <script type="module">
+    import { 
+      getCart, 
+      removeFromCart, 
+      increaseQuantity, 
+      decreaseQuantity, 
+      updateCartQuantity, 
+      clearCart, 
+      getCartSubtotal, 
+      getCartShipping, 
+      getCartTax, 
+      getCartGrandTotal, 
+      getCartItemCount,
+      getCartItemKey 
+    } from '../js/cart.js';
+    import { initNavbarAuth } from '../js/auth.js';
+    import { formatCurrency, formatProductImage, showToast } from '../js/utils.js';
+
+    // Initialize Navbar Auth State
+    initNavbarAuth();
+
+    // State for discounts
+    let appliedDiscount = 0;
+    let appliedPromoCode = '';
+
+    const cartView = document.getElementById('cart-view-container');
+    const badge = document.getElementById('cart-count-badge');
+    const countLabel = document.getElementById('cart-item-count-label');
+
+    function updateBadge() {
+      if (badge) badge.textContent = getCartItemCount();
+    }
+
+    function renderCart() {
+      const items = getCart();
+      updateBadge();
+
+      // Empty State
+      if (items.length === 0) {
+        countLabel.textContent = 'Your bag is currently empty.';
+        cartView.innerHTML = `
+          <div class="empty-cart-view">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="text-muted" style="margin: 0 auto 16px auto;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <h2 class="text-2xl font-bold mb-2">Your shopping bag is empty</h2>
+            <p class="text-sm text-secondary mb-6" style="max-width: 420px; margin-left: auto; margin-right: auto;">
+              Explore our collection of minimal apparel, precision accessories, and handcrafted footwear to add items to your cart.
+            </p>
+            <a href="products.html" class="btn btn-primary btn-lg">Explore Collection &rarr;</a>
+          </div>
+        `;
+        return;
+      }
+
+      // Calculations using reduce()
+      const totalCount = getCartItemCount();
+      const subtotal = getCartSubtotal();
+      const shippingThreshold = 100;
+      const amountAwayFromFreeShipping = Math.max(0, shippingThreshold - subtotal);
+      const shippingProgressPercent = Math.min(100, (subtotal / shippingThreshold) * 100);
+      const shipping = getCartShipping(subtotal);
+      const tax = getCartTax(subtotal - appliedDiscount);
+      const total = getCartGrandTotal(appliedDiscount);
+
+      countLabel.textContent = `You have ${totalCount} item${totalCount === 1 ? '' : 's'} in your shopping bag.`;
+
+      cartView.innerHTML = `
+        <div class="cart-grid">
+          
+          <!-- Left Column: Items List Card -->
+          <div class="card">
+            
+            <!-- Free Shipping Progress Tracker -->
+            <div style="padding: var(--space-4) var(--space-6); background-color: var(--color-bg-subtle); border-bottom: 1px solid var(--color-border-subtle);">
+              <div class="flex items-center justify-between text-xs font-medium">
+                <span>
+                  ${amountAwayFromFreeShipping === 0 
+                    ? '<span class="text-success font-semibold">✓ Free carbon-neutral shipping unlocked!</span>' 
+                    : `Add <strong>${formatCurrency(amountAwayFromFreeShipping)}</strong> more to qualify for Free Shipping`}
+                </span>
+                <span class="text-secondary">${Math.round(shippingProgressPercent)}%</span>
+              </div>
+              <div class="shipping-progress-bar">
+                <div class="shipping-progress-fill" style="width: ${shippingProgressPercent}%;"></div>
+              </div>
+            </div>
+
+            <!-- Items List -->
+            <div style="padding: 0 var(--space-6);">
+              ${items.map(item => {
+                const key = getCartItemKey(item);
+                const lineTotal = (item.price || 0) * (item.quantity || 1);
+
+                return `
+                  <div class="cart-item-row" data-key="${key}">
+                    
+                    <!-- Image -->
+                    <img src="${formatProductImage(item.image)}" alt="${item.name}" class="cart-item-thumb" onerror="this.src='../assets/product_tee.png'">
+
+                    <!-- Title & Variant Details -->
+                    <div class="cart-item-details">
+                      <div class="font-semibold text-sm">
+                        <a href="product-details.html?id=${item.id}" class="hover:underline">${item.name}</a>
+                      </div>
+                      <div class="text-xs text-secondary mt-1">
+                        ${item.selectedSize ? `<span class="badge badge-neutral" style="font-size: 10px;">Size: ${item.selectedSize}</span>` : ''}
+                        <span class="ml-1">${formatCurrency(item.price)} each</span>
+                      </div>
+                    </div>
+
+                    <!-- Quantity Controls -->
+                    <div class="cart-qty-ctrl">
+                      <button class="cart-qty-btn btn-qty-minus" data-key="${key}" aria-label="Decrease quantity">&minus;</button>
+                      <input 
+                        type="number" 
+                        value="${item.quantity}" 
+                        min="1" 
+                        max="99" 
+                        class="cart-qty-num input-qty" 
+                        data-key="${key}"
+                        readonly
+                      >
+                      <button class="cart-qty-btn btn-qty-plus" data-key="${key}" aria-label="Increase quantity">&plus;</button>
+                    </div>
+
+                    <!-- Line Item Total -->
+                    <div class="font-bold text-sm text-right" style="min-width: 80px;">
+                      ${formatCurrency(lineTotal)}
+                    </div>
+
+                    <!-- Remove Item Button -->
+                    <button class="btn btn-ghost btn-sm text-muted btn-remove-item" data-key="${key}" title="Remove item" aria-label="Remove item">
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Card Bottom Toolbar -->
+            <div class="card-footer flex justify-between items-center">
+              <button id="btn-clear-cart" class="btn btn-ghost btn-sm text-secondary">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Clear Bag
+              </button>
+              <a href="products.html" class="btn btn-secondary btn-sm">+ Add More Items</a>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Order Summary Card -->
+          <aside class="order-summary-card">
+            <h2 class="text-lg font-bold mb-4">Order Summary</h2>
+            
+            <div class="summary-row">
+              <span>Subtotal (${totalCount} item${totalCount === 1 ? '' : 's'})</span>
+              <span id="summary-subtotal-val">${formatCurrency(subtotal)}</span>
+            </div>
+
+            ${appliedDiscount > 0 ? `
+              <div class="summary-row" style="color: var(--color-success);">
+                <span>Discount (${appliedPromoCode})</span>
+                <span>-${formatCurrency(appliedDiscount)}</span>
+              </div>
+            ` : ''}
+            
+            <div class="summary-row">
+              <span>Estimated Shipping</span>
+              <span id="summary-shipping-val">
+                ${shipping === 0 ? '<span class="badge badge-success">Free</span>' : formatCurrency(shipping)}
+              </span>
+            </div>
+
+            <div class="summary-row">
+              <span>Estimated Tax (8%)</span>
+              <span id="summary-tax-val">${formatCurrency(tax)}</span>
+            </div>
+
+            <div class="summary-row total">
+              <span>Estimated Total</span>
+              <span id="summary-grand-total">${formatCurrency(total)}</span>
+            </div>
+
+            <!-- Promo Code Form -->
+            <form id="promo-form" class="promo-input-group">
+              <input 
+                type="text" 
+                id="promo-input" 
+                class="form-control text-xs" 
+                placeholder="Promo code (try AURA10)" 
+                value="${appliedPromoCode}"
+                ${appliedDiscount > 0 ? 'disabled' : ''}
+              >
+              <button 
+                type="submit" 
+                class="btn btn-secondary btn-sm" 
+                id="promo-btn"
+                ${appliedDiscount > 0 ? 'disabled' : ''}
+              >
+                ${appliedDiscount > 0 ? 'Applied' : 'Apply'}
+              </button>
+            </form>
+
+            <div class="mt-4">
+              <a href="checkout.html" class="btn btn-primary btn-lg btn-full" id="btn-proceed-checkout">
+                Proceed to Checkout (${formatCurrency(total)}) &rarr;
+              </a>
+            </div>
+
+            <div class="flex items-center justify-center gap-4 text-xs text-secondary mt-6 pt-4 border-t" style="border-color: var(--color-border-subtle);">
+              <span>🔒 256-Bit SSL Encryption</span>
+              <span>•</span>
+              <span>30-Day Free Returns</span>
+            </div>
+
+          </aside>
+
+        </div>
+      `;
+
+      // Reactive Event Handlers (No page reload)
+      // Increase Quantity
+      cartView.querySelectorAll('.btn-qty-plus').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.key;
+          increaseQuantity(key);
+          renderCart();
+        });
+      });
+
+      // Decrease Quantity
+      cartView.querySelectorAll('.btn-qty-minus').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.key;
+          decreaseQuantity(key);
+          renderCart();
+        });
+      });
+
+      // Remove Item
+      cartView.querySelectorAll('.btn-remove-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.key;
+          removeFromCart(key);
+          showToast('Item removed from your bag.', 'neutral');
+          renderCart();
+        });
+      });
+
+      // Clear Cart
+      const clearBtn = document.getElementById('btn-clear-cart');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          clearCart();
+          appliedDiscount = 0;
+          appliedPromoCode = '';
+          showToast('Shopping bag cleared.', 'neutral');
+          renderCart();
+        });
+      }
+
+      // Promo Code Handler
+      const promoForm = document.getElementById('promo-form');
+      if (promoForm) {
+        promoForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const codeInput = document.getElementById('promo-input');
+          const code = (codeInput?.value || '').trim().toUpperCase();
+
+          if (code === 'AURA10') {
+            appliedDiscount = Math.round(subtotal * 0.10 * 100) / 100;
+            appliedPromoCode = 'AURA10 (10% OFF)';
+            showToast('Promo code "AURA10" applied successfully!', 'success');
+            renderCart();
+          } else if (code) {
+            showToast('Invalid promo code. Try "AURA10".', 'danger');
+          }
+        });
+      }
+    }
+
+    // Mobile nav toggle
+    const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+    if (mobileToggleBtn && mobileDrawer) {
+      mobileToggleBtn.addEventListener('click', () => {
+        mobileDrawer.classList.toggle('open');
+      });
+    }
+
+    window.addEventListener('cart-updated', renderCart);
+    renderCart();
+  </script>
+</body>
+</html>
