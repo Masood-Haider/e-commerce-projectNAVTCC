@@ -447,5 +447,65 @@ export async function getDashboardMetrics() {
   }
 }
 
+/**
+ * Subscribe an email address to the newsletter in Cloud Firestore ('newsletter_subscribers' collection)
+ */
+export async function subscribeToNewsletter(email) {
+  if (!email || !email.includes('@')) {
+    throw new Error('Please provide a valid email address.');
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  // Safe document ID from sanitized email
+  const docId = cleanEmail.replace(/[^a-zA-Z0-9_.-]/g, '_');
+
+  try {
+    const subscriberRef = doc(db, 'newsletter_subscribers', docId);
+    await setDoc(subscriberRef, {
+      email: cleanEmail,
+      subscribedAt: new Date().toISOString(),
+      status: 'active',
+      source: 'storefront_newsletter'
+    }, { merge: true });
+
+    return { id: docId, email: cleanEmail, status: 'active' };
+  } catch (err) {
+    console.error('[Firestore] Failed to save newsletter subscriber:', err);
+    throw new Error(err.message || 'Unable to subscribe at this time.');
+  }
+}
+
+/**
+ * Fetch all newsletter subscriber documents from Cloud Firestore
+ */
+export async function getNewsletterSubscribers() {
+  try {
+    const subscribersRef = collection(db, 'newsletter_subscribers');
+    const snapshot = await getDocs(subscribersRef);
+    if (!snapshot.empty) {
+      const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Sort newest subscribers first
+      return list.sort((a, b) => new Date(b.subscribedAt || 0) - new Date(a.subscribedAt || 0));
+    }
+  } catch (err) {
+    console.warn('[Firestore] Error fetching newsletter subscribers:', err);
+  }
+  return [];
+}
+
+/**
+ * Delete or unsubscribe a user from newsletter in Cloud Firestore
+ */
+export async function deleteNewsletterSubscriber(id) {
+  try {
+    const subRef = doc(db, 'newsletter_subscribers', id);
+    await deleteDoc(subRef);
+    return true;
+  } catch (err) {
+    console.error('[Firestore] Failed to delete newsletter subscriber:', err);
+    throw err;
+  }
+}
+
 // Initial Auto-Seed Trigger
 seedInitialProductsIfEmpty();

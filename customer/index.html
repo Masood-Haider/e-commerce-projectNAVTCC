@@ -497,7 +497,7 @@
        PAGE SCRIPTS (ES MODULES)
        ========================================================================== -->
   <script type="module">
-    import { getFeaturedProducts } from '../js/firestore.js';
+    import { getFeaturedProducts, subscribeToNewsletter } from '../js/firestore.js';
     import { addToCart, getCartItemCount } from '../js/cart.js';
     import { initNavbarAuth } from '../js/auth.js';
     import { formatCurrency, formatProductImage, showToast, initScrollReveal, triggerBadgePop, triggerCartBounce } from '../js/utils.js';
@@ -626,13 +626,35 @@
       });
     }
 
-    // Newsletter Form
+    // Newsletter Form Handler with Cloud Firestore Storage
     const newsletterForm = document.getElementById('newsletter-form');
     if (newsletterForm) {
-      newsletterForm.addEventListener('submit', (e) => {
+      newsletterForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        showToast('Thank you for subscribing to AURA updates.', 'success');
-        newsletterForm.reset();
+        const input = newsletterForm.querySelector('input[type="email"]');
+        const submitBtn = newsletterForm.querySelector('button[type="submit"]');
+        const email = (input?.value || '').trim();
+
+        if (!email) return;
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Subscribing...';
+        }
+
+        try {
+          await subscribeToNewsletter(email);
+          showToast('✓ Successfully subscribed to AURA newsletter!', 'success');
+          newsletterForm.reset();
+        } catch (err) {
+          console.error('[Newsletter] Subscription error:', err);
+          showToast(err.message || 'Failed to subscribe. Please try again.', 'danger');
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Subscribe';
+          }
+        }
       });
     }
   </script>
