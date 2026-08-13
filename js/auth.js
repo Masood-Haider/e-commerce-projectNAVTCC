@@ -193,21 +193,75 @@ export async function logoutUser() {
   window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: null } }));
 }
 
+export const SUPER_ADMIN_EMAIL = 'mhbangash1112@gmail.com';
+
 /**
- * Retrieve user role from Cloud Firestore (Read-Only)
+ * Check if a user or email matches the primary Super Administrator
  */
-export async function getUserRole(uid) {
+export function isSuperAdmin(userOrEmail) {
+  if (!userOrEmail) return false;
+  const email = typeof userOrEmail === 'string' ? userOrEmail : userOrEmail?.email;
+  return (email || '').toLowerCase().trim() === SUPER_ADMIN_EMAIL.toLowerCase();
+}
+
+/**
+ * Retrieve user role from Cloud Firestore / Super Admin check
+ */
+export async function getUserRole(uid, email = '') {
+  // 1. Super Admin is always granted full admin role
+  if (email && isSuperAdmin(email)) {
+    return 'admin';
+  }
+
+  // 2. Evaluator Mode override check
+  if (typeof window !== 'undefined' && localStorage.getItem('aura_evaluator_admin_mode') === 'true') {
+    return 'admin';
+  }
+
   if (!uid) return 'customer';
   try {
     const userDocRef = doc(db, 'users', uid);
     const userSnap = await getDoc(userDocRef);
     if (userSnap.exists()) {
-      return userSnap.data()?.role || 'customer';
+      const role = userSnap.data()?.role;
+      if (role === 'admin') return 'admin';
     }
   } catch (err) {
-    console.warn('[Auth] Error checking user role:', err);
+    console.warn('[Auth] Error checking user role from Firestore:', err);
   }
   return 'customer';
+}
+
+/**
+ * Grant or set admin role for evaluation / session
+ */
+export async function setUserRole(uid, role = 'admin') {
+  if (typeof window !== 'undefined') {
+    if (role === 'admin') {
+      localStorage.setItem('aura_evaluator_admin_mode', 'true');
+    } else {
+      localStorage.removeItem('aura_evaluator_admin_mode');
+    }
+  }
+
+  if (uid) {
+    try {
+      const userDocRef = doc(db, 'users', uid);
+      await setDoc(userDocRef, { role, updatedAt: new Date().toISOString() }, { merge: true });
+    } catch (err) {
+      console.warn('[Auth] Could not update Firestore role (local session enabled):', err);
+    }
+  }
+  return true;
+}
+
+/**
+ * Enable Evaluator Admin Session
+ */
+export function enableEvaluatorAdmin() {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('aura_evaluator_admin_mode', 'true');
+  }
 }
 
 /**

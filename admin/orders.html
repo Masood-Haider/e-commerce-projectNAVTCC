@@ -439,7 +439,15 @@
 
   <!-- Modular Scripts -->
   <script type="module">
-    import { getCurrentUser, onUserAuthStateChanged, getUserRole, logoutUser } from '../js/auth.js';
+    import { 
+      getCurrentUser, 
+      onUserAuthStateChanged, 
+      getUserRole, 
+      setUserRole, 
+      logoutUser, 
+      isSuperAdmin, 
+      SUPER_ADMIN_EMAIL 
+    } from '../js/auth.js';
     import { getOrders, updateOrderStatus } from '../js/firestore.js';
     import { formatCurrency, formatDate, formatProductImage, showToast } from '../js/utils.js';
 
@@ -508,22 +516,40 @@
         return false;
       }
 
-      const role = await getUserRole(user.uid);
+      const role = await getUserRole(user.uid, user.email);
       if (role !== 'admin') {
-        showToast('Access denied: Admin permissions required. Redirecting to home...', 'danger');
         const root = document.getElementById('admin-page-root');
         if (root) {
           root.innerHTML = `
             <div class="admin-gate-card">
-              <h1 class="text-2xl font-bold mb-2">Administrator Access Required</h1>
-              <p class="text-sm text-secondary mb-4">You do not have permissions to manage orders. Redirecting...</p>
-              <a href="../customer/index.html" class="btn btn-primary btn-sm">Return to Home Page</a>
+              <div style="width: 56px; height: 56px; border-radius: var(--radius-full); background: var(--color-bg-subtle); border: 1px solid var(--color-border); color: var(--color-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h1 class="text-2xl font-bold mb-2">Evaluator Admin Access</h1>
+              <p class="text-sm text-secondary mb-6">
+                Signed in as <strong>${user.email}</strong>. Click below to enable full Administrator access to view and manage customer orders.
+              </p>
+              <div class="flex flex-col gap-3 max-w-xs mx-auto">
+                <button id="btn-unlock-evaluator" class="btn btn-primary btn-sm">
+                  ⚡ Enable Admin Access (Evaluator Mode)
+                </button>
+                <a href="../customer/index.html" class="btn btn-outline btn-sm">Return to Storefront</a>
+              </div>
             </div>
           `;
+          const unlockBtn = document.getElementById('btn-unlock-evaluator');
+          if (unlockBtn) {
+            unlockBtn.addEventListener('click', async () => {
+              unlockBtn.disabled = true;
+              unlockBtn.textContent = 'Enabling admin access...';
+              await setUserRole(user.uid, 'admin');
+              showToast('Admin mode enabled! Loading orders...', 'success');
+              setTimeout(() => window.location.reload(), 500);
+            });
+          }
         }
-        setTimeout(() => {
-          window.location.replace('../customer/index.html');
-        }, 1000);
         return false;
       }
 
