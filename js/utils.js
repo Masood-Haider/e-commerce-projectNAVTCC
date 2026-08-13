@@ -138,3 +138,76 @@ export function showToast(message, type = 'neutral') {
     setTimeout(() => toast.remove(), 250);
   }, 3200);
 }
+
+/**
+ * Initialize native IntersectionObserver for smooth scroll-reveal animations
+ */
+export function initScrollReveal(selector = '.reveal-on-scroll', threshold = 0.12) {
+  if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+    document.querySelectorAll(selector).forEach(el => el.classList.add('is-revealed'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, {
+    root: null,
+    rootMargin: '0px 0px -40px 0px',
+    threshold
+  });
+
+  document.querySelectorAll(selector).forEach(el => observer.observe(el));
+}
+
+/**
+ * Trigger pop animation on cart badge counter
+ */
+export function triggerBadgePop(badgeElement) {
+  const el = badgeElement || document.getElementById('cart-count-badge');
+  if (!el) return;
+  el.classList.remove('badge-pop');
+  void el.offsetWidth;
+  el.classList.add('badge-pop');
+}
+
+/**
+ * Trigger bounce animation on cart navigation icon
+ */
+export function triggerCartBounce(cartIconElement) {
+  const el = cartIconElement || document.getElementById('nav-cart-btn') || document.querySelector('.cart-icon-wrap');
+  if (!el) return;
+  el.classList.remove('cart-bounce');
+  void el.offsetWidth;
+  el.classList.add('cart-bounce');
+}
+
+/**
+ * Attach real-time input validation feedback
+ */
+export function attachRealtimeValidation(inputEl, validateFn) {
+  if (!inputEl) return;
+  
+  const validate = () => {
+    const val = inputEl.value;
+    if (!val || val.trim() === '') {
+      inputEl.classList.remove('is-valid', 'is-invalid');
+      return;
+    }
+    const isValid = validateFn(val);
+    if (isValid) {
+      inputEl.classList.add('is-valid');
+      inputEl.classList.remove('is-invalid');
+    } else {
+      inputEl.classList.add('is-invalid');
+      inputEl.classList.remove('is-valid');
+    }
+  };
+
+  inputEl.addEventListener('input', validate);
+  inputEl.addEventListener('blur', validate);
+}

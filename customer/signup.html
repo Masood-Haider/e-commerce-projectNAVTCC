@@ -330,7 +330,7 @@
   <!-- Modular Scripts -->
   <script type="module">
     import { signupUser, loginWithGoogle, getCurrentUser } from '../js/auth.js';
-    import { showToast, getQueryParams } from '../js/utils.js';
+    import { showToast, getQueryParams, attachRealtimeValidation } from '../js/utils.js';
 
     const signupForm = document.getElementById('signup-form');
     const submitBtn = document.getElementById('btn-submit-signup');
@@ -338,6 +338,14 @@
     const alertBox = document.getElementById('signup-alert');
     const alertText = document.getElementById('alert-text');
     const linkToLogin = document.getElementById('link-to-login');
+
+    // Attach real-time validation
+    const nameInput = document.getElementById('signup-name');
+    const emailInput = document.getElementById('signup-email');
+    const passwordInput = document.getElementById('signup-password');
+    attachRealtimeValidation(nameInput, val => val.trim().length >= 2);
+    attachRealtimeValidation(emailInput, val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim()));
+    attachRealtimeValidation(passwordInput, val => val.length >= 6);
 
     // Transfer redirect parameter
     const params = getQueryParams();

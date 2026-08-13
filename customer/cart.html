@@ -283,7 +283,7 @@
       getCartItemKey 
     } from '../js/cart.js';
     import { initNavbarAuth } from '../js/auth.js';
-    import { formatCurrency, formatProductImage, showToast } from '../js/utils.js';
+    import { formatCurrency, formatProductImage, showToast, initScrollReveal, triggerBadgePop, triggerCartBounce } from '../js/utils.js';
 
     // Initialize Navbar Auth State
     initNavbarAuth();
@@ -563,8 +563,13 @@
       });
     }
 
-    window.addEventListener('cart-updated', renderCart);
+    window.addEventListener('cart-updated', () => {
+      renderCart();
+      triggerBadgePop();
+      triggerCartBounce();
+    });
     renderCart();
+    initScrollReveal();
   </script>
 </body>
 </html>

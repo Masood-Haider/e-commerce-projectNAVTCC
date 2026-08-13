@@ -322,18 +322,14 @@
     import { getProducts } from '../js/firestore.js';
     import { addToCart, getCartItemCount } from '../js/cart.js';
     import { initNavbarAuth } from '../js/auth.js';
-    import { formatCurrency, formatProductImage, showToast, getQueryParams } from '../js/utils.js';
-
-    // Initialize Navbar Auth State
-    initNavbarAuth();
+    import { formatCurrency, formatProductImage, getQueryParams, showToast, initScrollReveal, triggerBadgePop, triggerCartBounce } from '../js/utils.js';
 
     // State
     const state = {
       query: '',
       category: 'all',
       sort: 'featured',
-      inStockOnly: false,
-      loading: true
+      inStockOnly: false
     };
 
     // DOM Elements
@@ -353,15 +349,15 @@
     updateBadge();
     window.addEventListener('cart-updated', updateBadge);
 
-    // Render Skeleton Loading
+    // Render Skeleton Loading with Shimmer
     function renderLoadingSkeletons() {
       gridContainer.innerHTML = Array.from({ length: 6 }).map(() => `
-        <div class="skeleton-card">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-body">
-            <div class="skeleton-line" style="width: 40%;"></div>
-            <div class="skeleton-line" style="width: 80%;"></div>
-            <div class="skeleton-line" style="width: 30%; margin-top: 8px;"></div>
+        <div class="card" style="border-radius: var(--radius-lg); overflow: hidden;">
+          <div class="skeleton-shimmer" style="width: 100%; aspect-ratio: 1/1;"></div>
+          <div style="padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2);">
+            <div class="skeleton-shimmer" style="height: 10px; width: 40%; border-radius: var(--radius-xs);"></div>
+            <div class="skeleton-shimmer" style="height: 14px; width: 80%; border-radius: var(--radius-xs);"></div>
+            <div class="skeleton-shimmer" style="height: 14px; width: 30%; border-radius: var(--radius-xs); margin-top: 8px;"></div>
           </div>
         </div>
       `).join('');
@@ -404,11 +400,11 @@
           return;
         }
 
-        // Render product cards using destructuring, optional chaining, and map()
+        // Render product cards with scroll-reveal and image zoom
         gridContainer.innerHTML = products.map(product => {
           const { id, title, price, category, image, badge } = product || {};
           return `
-            <article class="product-card" data-product-id="${id}">
+            <article class="product-card reveal-on-scroll" data-product-id="${id}">
               <div class="product-image-wrap">
                 ${badge ? `<span class="badge ${badge === 'New' ? 'badge-accent' : badge === 'Low Stock' ? 'badge-warning' : 'badge-neutral'} product-badge-overlay">${badge}</span>` : ''}
                 <img src="${formatProductImage(image)}" alt="${title}" loading="lazy" onerror="this.src='../assets/product_tee.png'">
@@ -437,7 +433,7 @@
           `;
         }).join('');
 
-        // Attach Quick Add Handlers
+        // Attach Quick Add Handlers with Bounce & Pop animations
         gridContainer.querySelectorAll('.product-quick-add').forEach(btn => {
           btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -445,9 +441,14 @@
             const { id, name, price, category } = btn.dataset;
             addToCart({ id, name, price: parseFloat(price) || 0, category }, 1);
             updateBadge();
+            triggerBadgePop();
+            triggerCartBounce();
             showToast(`Added "${name}" to cart.`, 'success');
           });
         });
+
+        // Initialize Scroll Reveal
+        initScrollReveal();
 
       } catch (err) {
         console.error('[Firestore] Products query error:', err);

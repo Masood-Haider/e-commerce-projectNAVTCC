@@ -58,29 +58,38 @@
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-text-secondary);
-  transition: color var(--transition-fast);
+  transition: color 180ms ease;
   position: relative;
   padding: var(--space-1) 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-text-primary);
+  transition: width 220ms cubic-bezier(0.4, 0, 0.2, 1), left 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-full);
 }
 
 .nav-link:hover {
   color: var(--color-text-primary);
 }
 
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+  left: 0;
+}
+
 .nav-link.active {
   color: var(--color-text-primary);
   font-weight: var(--font-semibold);
-}
-
-.nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--color-text-primary);
-  border-radius: var(--radius-full);
 }
 
 /* Nav Dropdown for Categories */

@@ -109,7 +109,7 @@
     <div class="container">
       <div class="hero-grid">
         
-        <div class="hero-content">
+        <div class="hero-content reveal-on-scroll">
           <span class="badge badge-neutral hero-tag">Autumn / Winter 2026</span>
           <h1 class="hero-title">Timeless essentials engineered for modern clarity.</h1>
           <p class="hero-description">
@@ -121,7 +121,7 @@
           </div>
         </div>
 
-        <div class="hero-media-wrapper">
+        <div class="hero-media-wrapper reveal-on-scroll reveal-delay-2">
           <img src="../assets/hero_banner.png" alt="AURA Minimalist Collection" loading="eager">
           <div class="hero-floating-badge">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: var(--color-success);">
@@ -138,7 +138,7 @@
   <!-- ==========================================================================
        VALUE PROPOSITIONS BAR
        ========================================================================== -->
-  <section class="value-props-bar">
+  <section class="value-props-bar reveal-on-scroll">
     <div class="container">
       <div class="value-props-grid">
         
@@ -198,7 +198,7 @@
        CATEGORIES / PROMOTIONAL SHOWCASE
        ========================================================================== -->
   <section class="container mt-16 mb-16">
-    <div class="section-header">
+    <div class="section-header reveal-on-scroll">
       <div>
         <h2 class="section-title">Shop by Category</h2>
         <p class="section-subtitle">Explore curated departments crafted for effortless everyday utility.</p>
@@ -209,7 +209,7 @@
     <div class="categories-grid">
       
       <!-- Category 1: Apparel -->
-      <a href="products.html?category=apparel" class="category-card" id="cat-apparel">
+      <a href="products.html?category=apparel" class="category-card reveal-on-scroll reveal-delay-1" id="cat-apparel">
         <div class="category-card-bg">
           <img src="../assets/product_tee.png" alt="Apparel Collection">
         </div>
@@ -222,7 +222,7 @@
       </a>
 
       <!-- Category 2: Footwear -->
-      <a href="products.html?category=footwear" class="category-card" id="cat-footwear">
+      <a href="products.html?category=footwear" class="category-card reveal-on-scroll reveal-delay-2" id="cat-footwear">
         <div class="category-card-bg">
           <img src="../assets/product_sneaker.png" alt="Footwear Collection">
         </div>
@@ -235,7 +235,7 @@
       </a>
 
       <!-- Category 3: Accessories & Carry -->
-      <a href="products.html?category=carry" class="category-card" id="cat-carry">
+      <a href="products.html?category=carry" class="category-card reveal-on-scroll reveal-delay-3" id="cat-carry">
         <div class="category-card-bg">
           <img src="../assets/product_backpack.png" alt="Carry and Bags">
         </div>
@@ -500,7 +500,7 @@
     import { getFeaturedProducts } from '../js/firestore.js';
     import { addToCart, getCartItemCount } from '../js/cart.js';
     import { initNavbarAuth } from '../js/auth.js';
-    import { formatCurrency, formatProductImage, showToast } from '../js/utils.js';
+    import { formatCurrency, formatProductImage, showToast, initScrollReveal, triggerBadgePop, triggerCartBounce } from '../js/utils.js';
 
     // Initialize Navbar Auth State
     initNavbarAuth();
@@ -526,11 +526,11 @@
       if (!featuredGrid) return;
       featuredGrid.innerHTML = Array.from({ length: 4 }).map(() => `
         <div class="card" style="border-radius: var(--radius-lg); overflow: hidden;">
-          <div style="width: 100%; aspect-ratio: 1/1; background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
+          <div class="skeleton-shimmer" style="width: 100%; aspect-ratio: 1/1;"></div>
           <div style="padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2);">
-            <div style="height: 10px; width: 30%; background: #e4e4e7; border-radius: var(--radius-xs);"></div>
-            <div style="height: 14px; width: 75%; background: #e4e4e7; border-radius: var(--radius-xs);"></div>
-            <div style="height: 14px; width: 40%; background: #e4e4e7; border-radius: var(--radius-xs); margin-top: 8px;"></div>
+            <div class="skeleton-shimmer" style="height: 10px; width: 30%; border-radius: var(--radius-xs);"></div>
+            <div class="skeleton-shimmer" style="height: 14px; width: 75%; border-radius: var(--radius-xs);"></div>
+            <div class="skeleton-shimmer" style="height: 14px; width: 40%; border-radius: var(--radius-xs); margin-top: 8px;"></div>
           </div>
         </div>
       `).join('');
@@ -556,7 +556,7 @@
         featuredGrid.innerHTML = products.slice(0, 4).map(product => {
           const { id, title, price, category, image, badge } = product || {};
           return `
-            <article class="product-card" data-product-id="${id}">
+            <article class="product-card reveal-on-scroll" data-product-id="${id}">
               <div class="product-image-wrap">
                 ${badge ? `<span class="badge ${badge === 'New' ? 'badge-accent' : badge === 'Low Stock' ? 'badge-warning' : 'badge-neutral'} product-badge-overlay">${badge}</span>` : ''}
                 <img src="${formatProductImage(image)}" alt="${title}" loading="lazy" onerror="this.src='../assets/product_tee.png'">
@@ -585,7 +585,7 @@
           `;
         }).join('');
 
-        // Attach Quick Add Handlers
+        // Attach Quick Add Handlers with Bounce & Pop micro-interactions
         featuredGrid.querySelectorAll('.product-quick-add').forEach(btn => {
           btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -594,9 +594,14 @@
             const { id, name, price, category } = btn.dataset;
             addToCart({ id, name, price: parseFloat(price) || 0, category }, 1);
             refreshCartBadge();
+            triggerBadgePop();
+            triggerCartBounce();
             showToast(`Added "${name}" to your cart.`, 'success');
           });
         });
+
+        // Initialize Scroll Reveal for loaded cards
+        initScrollReveal();
 
       } catch (err) {
         console.error('[Firestore] Error rendering homepage featured products:', err);
@@ -609,6 +614,7 @@
     }
 
     loadFeaturedProducts();
+    initScrollReveal();
 
     // Mobile Navigation Drawer Toggle
     const mobileToggleBtn = document.getElementById('mobile-toggle-btn');

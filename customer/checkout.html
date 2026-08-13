@@ -353,7 +353,7 @@
     } from '../js/cart.js';
     import { createOrder } from '../js/firestore.js';
     import { getCurrentUser, onUserAuthStateChanged } from '../js/auth.js';
-    import { formatCurrency, formatProductImage, showToast } from '../js/utils.js';
+    import { formatCurrency, formatProductImage, showToast, attachRealtimeValidation, initScrollReveal } from '../js/utils.js';
 
     const contentArea = document.getElementById('checkout-content-area');
     const itemsList = document.getElementById('checkout-items-list');
@@ -683,10 +683,38 @@
       `;
 
       showToast(`Order #${orderId} confirmed successfully!`, 'success');
+      initScrollReveal();
+    }
+
+    // Attach Live Realtime Validation Listeners
+    function setupRealtimeValidation() {
+      const nameInput = document.getElementById('cust-fullname');
+      const emailInput = document.getElementById('cust-email');
+      const phoneInput = document.getElementById('cust-phone');
+      const addressInput = document.getElementById('ship-address');
+      const cityInput = document.getElementById('ship-city');
+      const stateInput = document.getElementById('ship-state');
+      const zipInput = document.getElementById('ship-zip');
+      const ccNumInput = document.getElementById('cc-number');
+      const ccExpInput = document.getElementById('cc-expiry');
+      const ccCvcInput = document.getElementById('cc-cvc');
+
+      attachRealtimeValidation(nameInput, val => val.trim().length >= 2);
+      attachRealtimeValidation(emailInput, val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim()));
+      attachRealtimeValidation(phoneInput, val => val.trim().length >= 7);
+      attachRealtimeValidation(addressInput, val => val.trim().length >= 4);
+      attachRealtimeValidation(cityInput, val => val.trim().length >= 2);
+      attachRealtimeValidation(stateInput, val => val.trim().length >= 2);
+      attachRealtimeValidation(zipInput, val => val.trim().length >= 3);
+      attachRealtimeValidation(ccNumInput, val => val.replace(/\s+/g, '').length >= 12);
+      attachRealtimeValidation(ccExpInput, val => val.trim().length >= 4);
+      attachRealtimeValidation(ccCvcInput, val => val.trim().length >= 3);
     }
 
     onUserAuthStateChanged(() => {
       initCheckout();
+      setupRealtimeValidation();
+      initScrollReveal();
     });
   </script>
 </body>
