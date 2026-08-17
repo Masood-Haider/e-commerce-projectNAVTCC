@@ -239,12 +239,9 @@
           
           <!-- Revenue & Sales Trajectory Chart (2 Cols Span) -->
           <div class="card card-body" style="grid-column: span 2;">
-            <div class="flex justify-between items-center mb-4">
-              <div>
-                <h2 class="text-base font-bold">Revenue Velocity & Sales Volume</h2>
-                <p class="text-xs text-secondary">Real-time 7-day revenue trajectory calculated from live Cloud Firestore orders.</p>
-              </div>
-              <span class="badge badge-accent text-xs" style="font-size: 10px;">● Live Orders</span>
+            <div class="mb-4">
+              <h2 class="text-base font-bold">Revenue Velocity & Sales Volume</h2>
+              <p class="text-xs text-secondary">Real-time 7-day revenue trajectory calculated from live Cloud Firestore orders.</p>
             </div>
             <div style="position: relative; height: 240px; width: 100%;">
               <canvas id="revenueChart"></canvas>
@@ -253,12 +250,9 @@
 
           <!-- Category Breakdown Chart (1 Col) -->
           <div class="card card-body">
-            <div class="flex justify-between items-center mb-4">
-              <div>
-                <h2 class="text-base font-bold">Catalog Distribution</h2>
-                <p class="text-xs text-secondary">Real-time category breakdown from active Firestore catalog.</p>
-              </div>
-              <span class="badge badge-neutral text-xs" style="font-size: 10px;">● Live Catalog</span>
+            <div class="mb-4">
+              <h2 class="text-base font-bold">Catalog Distribution</h2>
+              <p class="text-xs text-secondary">Real-time category breakdown from active Firestore catalog.</p>
             </div>
             <div style="position: relative; height: 240px; width: 100%; display: flex; align-items: center; justify-content: center;">
               <canvas id="categoryChart"></canvas>

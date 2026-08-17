@@ -3,6 +3,9 @@
 // Formatting, DOM helpers, and toast notifications
 // ==========================================================================
 
+import { initSmoothScroll } from './smooth-scroll.js';
+export { initSmoothScroll };
+
 /**
  * Format numeric amount to USD currency string
  */
