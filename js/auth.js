@@ -180,6 +180,37 @@ export async function loginWithGoogle() {
   }
 }
 
+export const SUPER_ADMIN_EMAIL = 'mhbangash1112@gmail.com';
+
+/**
+ * Standard Evaluator Admin Profile
+ */
+export const EVALUATOR_USER = {
+  uid: 'evaluator-admin-uid',
+  email: 'evaluator@aurastudio.test',
+  displayName: 'Evaluator Admin',
+  photoURL: null,
+  role: 'admin',
+  isEvaluator: true
+};
+
+/**
+ * Check if current session is in Evaluator Mode
+ */
+export function isEvaluatorMode() {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('aura_evaluator_admin_mode') === 'true';
+}
+
+/**
+ * Check if a user or email matches the primary Super Administrator
+ */
+export function isSuperAdmin(userOrEmail) {
+  if (!userOrEmail) return false;
+  const email = typeof userOrEmail === 'string' ? userOrEmail : userOrEmail?.email;
+  return (email || '').toLowerCase().trim() === SUPER_ADMIN_EMAIL.toLowerCase();
+}
+
 /**
  * Log out the current user session
  */
@@ -189,19 +220,11 @@ export async function logoutUser() {
   } catch (err) {
     console.warn('[Auth] Firebase signOut error:', err);
   }
-  localStorage.removeItem(DEMO_USER_KEY);
-  window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: null } }));
-}
-
-export const SUPER_ADMIN_EMAIL = 'mhbangash1112@gmail.com';
-
-/**
- * Check if a user or email matches the primary Super Administrator
- */
-export function isSuperAdmin(userOrEmail) {
-  if (!userOrEmail) return false;
-  const email = typeof userOrEmail === 'string' ? userOrEmail : userOrEmail?.email;
-  return (email || '').toLowerCase().trim() === SUPER_ADMIN_EMAIL.toLowerCase();
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(DEMO_USER_KEY);
+    localStorage.removeItem('aura_evaluator_admin_mode');
+    window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: null } }));
+  }
 }
 
 /**
@@ -214,7 +237,7 @@ export async function getUserRole(uid, email = '') {
   }
 
   // 2. Evaluator Mode override check
-  if (typeof window !== 'undefined' && localStorage.getItem('aura_evaluator_admin_mode') === 'true') {
+  if (isEvaluatorMode()) {
     return 'admin';
   }
 
@@ -238,13 +261,13 @@ export async function getUserRole(uid, email = '') {
 export async function setUserRole(uid, role = 'admin') {
   if (typeof window !== 'undefined') {
     if (role === 'admin') {
-      localStorage.setItem('aura_evaluator_admin_mode', 'true');
+      enableEvaluatorAdmin();
     } else {
       localStorage.removeItem('aura_evaluator_admin_mode');
     }
   }
 
-  if (uid) {
+  if (uid && uid !== 'evaluator-admin-uid') {
     try {
       const userDocRef = doc(db, 'users', uid);
       await setDoc(userDocRef, { role, updatedAt: new Date().toISOString() }, { merge: true });
@@ -261,29 +284,49 @@ export async function setUserRole(uid, role = 'admin') {
 export function enableEvaluatorAdmin() {
   if (typeof window !== 'undefined') {
     localStorage.setItem('aura_evaluator_admin_mode', 'true');
+    localStorage.setItem(DEMO_USER_KEY, JSON.stringify(EVALUATOR_USER));
+    window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: EVALUATOR_USER } }));
   }
+  return EVALUATOR_USER;
 }
 
 /**
  * Retrieve current authenticated user (sync)
  */
 export function getCurrentUser() {
+  const isEval = isEvaluatorMode();
+
   if (auth?.currentUser) {
+    const isSuper = isSuperAdmin(auth.currentUser.email);
     return {
       uid: auth.currentUser.uid,
       email: auth.currentUser.email,
       displayName: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
       photoURL: auth.currentUser.photoURL || null,
-      role: 'customer'
+      role: (isSuper || isEval) ? 'admin' : 'customer',
+      isEvaluator: isEval
     };
   }
 
   try {
     const raw = localStorage.getItem(DEMO_USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (raw) {
+      const user = JSON.parse(raw);
+      if (isEval || isSuperAdmin(user?.email)) {
+        user.role = 'admin';
+        user.isEvaluator = isEval;
+      }
+      return user;
+    }
   } catch {
-    return null;
+    // ignore
   }
+
+  if (isEval) {
+    return { ...EVALUATOR_USER };
+  }
+
+  return null;
 }
 
 /**
@@ -293,16 +336,19 @@ export function onUserAuthStateChanged(callback) {
   try {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        const role = await getUserRole(user.uid, user.email);
+        const isEval = isEvaluatorMode();
         callback({
           uid: user.uid,
           email: user.email,
           displayName: user.displayName || user.email.split('@')[0],
           photoURL: user.photoURL || null,
-          role: 'customer'
+          role: (role === 'admin' || isEval) ? 'admin' : 'customer',
+          isEvaluator: isEval
         });
       } else {
-        const localDemo = getCurrentUser();
-        callback(localDemo);
+        const localUser = getCurrentUser();
+        callback(localUser);
       }
     });
   } catch (err) {
@@ -311,7 +357,7 @@ export function onUserAuthStateChanged(callback) {
   }
 
   window.addEventListener('auth-state-changed', (e) => {
-    callback(e.detail?.user || null);
+    callback(e.detail?.user || getCurrentUser());
   });
 }
 

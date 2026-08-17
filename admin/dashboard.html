@@ -344,6 +344,7 @@
       setUserRole, 
       logoutUser, 
       isSuperAdmin, 
+      isEvaluatorMode,
       SUPER_ADMIN_EMAIL 
     } from '../js/auth.js';
     import { getDashboardMetrics } from '../js/firestore.js';
@@ -384,13 +385,14 @@
 
     // Role-Based Access Control Gate
     async function verifyAdminAccess(user) {
-      if (!user) {
+      const activeUser = user || getCurrentUser();
+      if (!activeUser) {
         // Unauthenticated -> redirect to login with return parameter
         window.location.href = `../customer/login.html?redirect=../admin/dashboard.html`;
         return false;
       }
 
-      const role = await getUserRole(user.uid, user.email);
+      const role = await getUserRole(activeUser.uid, activeUser.email);
 
       // Check if user is Admin
       if (role !== 'admin') {
@@ -403,7 +405,7 @@
             </div>
             <h1 class="text-2xl font-bold mb-2">Evaluator Admin Access</h1>
             <p class="text-sm text-secondary mb-6">
-              Signed in as <strong>${user.email}</strong>. Click below to enable full Administrator access for this evaluation session.
+              Signed in as <strong>${activeUser.email}</strong>. Click below to enable full Administrator access for this evaluation session.
             </p>
             <div class="flex flex-col gap-3 max-w-xs mx-auto">
               <button id="btn-unlock-evaluator" class="btn btn-primary btn-sm">
@@ -418,7 +420,7 @@
           unlockBtn.addEventListener('click', async () => {
             unlockBtn.disabled = true;
             unlockBtn.textContent = 'Enabling admin access...';
-            await setUserRole(user.uid, 'admin');
+            await setUserRole(activeUser.uid, 'admin');
             showToast('Admin mode enabled! Loading dashboard...', 'success');
             setTimeout(() => window.location.reload(), 500);
           });
@@ -427,9 +429,15 @@
       }
 
       // Update Topbar Admin Details
-      const name = user.displayName || user.email.split('@')[0];
+      const name = activeUser.displayName || activeUser.email.split('@')[0];
       if (adminDisplayName) adminDisplayName.textContent = name;
-      if (adminEmailTag) adminEmailTag.textContent = user.email;
+      if (adminEmailTag) {
+        if (activeUser.isEvaluator || isEvaluatorMode()) {
+          adminEmailTag.innerHTML = `${activeUser.email} <span class="badge badge-primary text-xs" style="font-size: 10px; padding: 2px 6px; margin-left: 4px;">Evaluator Admin</span>`;
+        } else {
+          adminEmailTag.textContent = activeUser.email;
+        }
+      }
       if (adminAvatarInitial) adminAvatarInitial.textContent = name.charAt(0).toUpperCase();
 
       return true;

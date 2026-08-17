@@ -196,6 +196,7 @@
       setUserRole, 
       logoutUser, 
       isSuperAdmin, 
+      isEvaluatorMode,
       SUPER_ADMIN_EMAIL 
     } from '../js/auth.js';
     import { getNewsletterSubscribers, deleteNewsletterSubscriber } from '../js/firestore.js';
@@ -237,12 +238,13 @@
 
     // Role-Based Access Control Gate
     async function verifyAdminAccess(user) {
-      if (!user) {
+      const activeUser = user || getCurrentUser();
+      if (!activeUser) {
         window.location.href = `../customer/login.html?redirect=../admin/subscribers.html`;
         return false;
       }
 
-      const role = await getUserRole(user.uid, user.email);
+      const role = await getUserRole(activeUser.uid, activeUser.email);
       if (role !== 'admin') {
         const root = document.getElementById('admin-page-root');
         if (root) {
@@ -255,7 +257,7 @@
               </div>
               <h1 class="text-2xl font-bold mb-2">Evaluator Admin Access</h1>
               <p class="text-sm text-secondary mb-6">
-                Signed in as <strong>${user.email}</strong>. Click below to enable full Administrator access to view subscribers.
+                Signed in as <strong>${activeUser.email}</strong>. Click below to enable full Administrator access to view subscribers.
               </p>
               <div class="flex flex-col gap-3 max-w-xs mx-auto">
                 <button id="btn-unlock-evaluator" class="btn btn-primary btn-sm">
@@ -270,7 +272,7 @@
             unlockBtn.addEventListener('click', async () => {
               unlockBtn.disabled = true;
               unlockBtn.textContent = 'Enabling admin access...';
-              await setUserRole(user.uid, 'admin');
+              await setUserRole(activeUser.uid, 'admin');
               showToast('Admin mode enabled! Loading subscribers...', 'success');
               setTimeout(() => window.location.reload(), 500);
             });
@@ -279,12 +281,18 @@
         return false;
       }
 
-      const name = user.displayName || user.email.split('@')[0];
+      const name = activeUser.displayName || activeUser.email.split('@')[0];
       const adminDisplayName = document.getElementById('admin-display-name');
       const adminEmailTag = document.getElementById('admin-email-tag');
       const adminAvatarInitial = document.getElementById('admin-avatar-initial');
       if (adminDisplayName) adminDisplayName.textContent = name;
-      if (adminEmailTag) adminEmailTag.textContent = user.email;
+      if (adminEmailTag) {
+        if (activeUser.isEvaluator || isEvaluatorMode()) {
+          adminEmailTag.innerHTML = `${activeUser.email} <span class="badge badge-primary text-xs" style="font-size: 10px; padding: 2px 6px; margin-left: 4px;">Evaluator Admin</span>`;
+        } else {
+          adminEmailTag.textContent = activeUser.email;
+        }
+      }
       if (adminAvatarInitial) adminAvatarInitial.textContent = name.charAt(0).toUpperCase();
 
       return true;
@@ -378,7 +386,7 @@
           const activeUser = getCurrentUser() || auth?.currentUser;
 
           if (!isSuperAdmin(activeUser)) {
-            showToast(`Action Restricted: Only Super Admin (${SUPER_ADMIN_EMAIL}) can delete subscribers.`, 'warning');
+            showToast(`Action Restricted: Subscriber deletion is disabled in Evaluator Mode to protect customer records. Permanent deletion is authorized only for Super Admin (${SUPER_ADMIN_EMAIL}).`, 'warning');
             return;
           }
 

@@ -451,12 +451,26 @@
 
     const evaluatorBtn = document.getElementById('btn-evaluator-login');
     if (evaluatorBtn) {
-      evaluatorBtn.addEventListener('click', () => {
+      evaluatorBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        evaluatorBtn.disabled = true;
+        evaluatorBtn.innerHTML = `
+          <svg class="animate-spin" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation: spin 1s linear infinite; display: inline-block;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Activating Admin Access...
+        `;
+
         enableEvaluatorAdmin();
-        showToast('Evaluator session activated! Redirecting to Admin Studio...', 'success');
+        showToast('Evaluator Admin session activated! Loading Admin Studio...', 'success');
+
+        const destination = (params.redirect && params.redirect.includes('admin'))
+          ? params.redirect
+          : '../admin/dashboard.html';
+
         setTimeout(() => {
-          window.location.href = '../admin/dashboard.html';
-        }, 350);
+          window.location.href = destination;
+        }, 300);
       });
     }
 
