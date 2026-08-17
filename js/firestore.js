@@ -19,7 +19,8 @@ import {
   query,
   where,
   orderBy,
-  limit
+  limit,
+  onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 let isSeeding = false;
@@ -402,7 +403,7 @@ export async function getUsers() {
 }
 
 /**
- * Fetch and calculate dashboard summary metrics from Cloud Firestore
+ * Fetch and calculate dashboard summary metrics & live chart datasets from Cloud Firestore
  */
 export async function getDashboardMetrics() {
   try {
@@ -424,6 +425,63 @@ export async function getDashboardMetrics() {
     // Identify low stock items
     const lowStockProducts = products.filter(p => (p?.stock ?? 0) <= 10);
 
+    // 1. Build Real 7-Day Revenue Dataset from live Firestore orders
+    const dailyRevenueMap = {};
+    const dayKeys = [];
+    const now = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(now.getDate() - i);
+      const key = d.toISOString().split('T')[0]; // YYYY-MM-DD
+      const weekday = d.toLocaleDateString('en-US', { weekday: 'short' });
+      const fullDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      dailyRevenueMap[key] = {
+        label: weekday,
+        fullDate,
+        total: 0,
+        ordersCount: 0
+      };
+      dayKeys.push(key);
+    }
+
+    // Map each order to its corresponding day bucket
+    orders.forEach(order => {
+      if (!order?.createdAt) return;
+      const orderDateKey = new Date(order.createdAt).toISOString().split('T')[0];
+      const amount = parseFloat(order?.total ?? order?.pricing?.grandTotal ?? 0) || 0;
+      
+      if (dailyRevenueMap[orderDateKey]) {
+        dailyRevenueMap[orderDateKey].total += amount;
+        dailyRevenueMap[orderDateKey].ordersCount += 1;
+      }
+    });
+
+    const revenueChartData = {
+      labels: dayKeys.map(k => dailyRevenueMap[k].label),
+      fullDates: dayKeys.map(k => dailyRevenueMap[k].fullDate),
+      values: dayKeys.map(k => Math.round(dailyRevenueMap[k].total * 100) / 100),
+      ordersCounts: dayKeys.map(k => dailyRevenueMap[k].ordersCount),
+      totalSales
+    };
+
+    // 2. Build Real Category Distribution Dataset from live Firestore products
+    const categoryMap = {};
+    products.forEach(p => {
+      let cat = (p?.category || 'General').trim();
+      cat = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
+      categoryMap[cat] = (categoryMap[cat] || 0) + 1;
+    });
+
+    const categoryLabels = Object.keys(categoryMap);
+    const categoryValues = categoryLabels.map(cat => categoryMap[cat]);
+
+    const categoryChartData = {
+      labels: categoryLabels.length > 0 ? categoryLabels : ['Apparel', 'Footwear', 'Accessories', 'Carry'],
+      values: categoryValues.length > 0 ? categoryValues : [1, 1, 1, 1],
+      totalItems: products.length
+    };
+
     return {
       totalSales,
       totalOrders: orders.length,
@@ -431,7 +489,11 @@ export async function getDashboardMetrics() {
       totalCustomers: users.length > 0 ? users.length : Math.max(new Set(orders.map(o => o?.customer?.email).filter(Boolean)).size, 1),
       pendingOrdersCount,
       recentOrders: orders.slice(0, 5),
-      lowStockProducts: lowStockProducts.slice(0, 4)
+      lowStockProducts: lowStockProducts.slice(0, 4),
+      revenueChartData,
+      categoryChartData,
+      products,
+      orders
     };
   } catch (err) {
     console.error('[Firestore] Error calculating dashboard metrics:', err);
@@ -442,8 +504,51 @@ export async function getDashboardMetrics() {
       totalCustomers: 0,
       pendingOrdersCount: 0,
       recentOrders: [],
-      lowStockProducts: []
+      lowStockProducts: [],
+      revenueChartData: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], fullDates: [], values: [0,0,0,0,0,0,0], ordersCounts: [0,0,0,0,0,0,0], totalSales: 0 },
+      categoryChartData: { labels: ['Apparel', 'Footwear', 'Accessories', 'Carry'], values: [0,0,0,0], totalItems: 0 },
+      products: [],
+      orders: []
     };
+  }
+}
+
+/**
+ * Subscribe to live real-time updates for products and orders in Cloud Firestore
+ */
+export function subscribeToDashboardRealtime(callback) {
+  try {
+    const productsRef = collection(db, 'products');
+    const ordersRef = collection(db, 'orders');
+
+    let debounceTimer = null;
+    const notifyCallback = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        try {
+          const metrics = await getDashboardMetrics();
+          callback(metrics);
+        } catch (err) {
+          console.warn('[Firestore] Live sync callback error:', err);
+        }
+      }, 150);
+    };
+
+    const unsubProducts = onSnapshot(productsRef, () => {
+      notifyCallback();
+    }, (err) => console.warn('[Firestore] Products live observer error:', err));
+
+    const unsubOrders = onSnapshot(ordersRef, () => {
+      notifyCallback();
+    }, (err) => console.warn('[Firestore] Orders live observer error:', err));
+
+    return () => {
+      unsubProducts();
+      unsubOrders();
+    };
+  } catch (err) {
+    console.warn('[Firestore] Could not attach live observer:', err);
+    return () => {};
   }
 }
 

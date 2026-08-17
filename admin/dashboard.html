@@ -242,9 +242,9 @@
             <div class="flex justify-between items-center mb-4">
               <div>
                 <h2 class="text-base font-bold">Revenue Velocity & Sales Volume</h2>
-                <p class="text-xs text-secondary">7-day transaction trajectory synced with Firestore orders.</p>
+                <p class="text-xs text-secondary">Real-time 7-day revenue trajectory calculated from live Cloud Firestore orders.</p>
               </div>
-              <span class="badge badge-accent text-xs">Live Velocity</span>
+              <span class="badge badge-accent text-xs" style="font-size: 10px;">● Live Orders</span>
             </div>
             <div style="position: relative; height: 240px; width: 100%;">
               <canvas id="revenueChart"></canvas>
@@ -256,9 +256,9 @@
             <div class="flex justify-between items-center mb-4">
               <div>
                 <h2 class="text-base font-bold">Catalog Distribution</h2>
-                <p class="text-xs text-secondary">Inventory breakdown by category.</p>
+                <p class="text-xs text-secondary">Real-time category breakdown from active Firestore catalog.</p>
               </div>
-              <span class="badge badge-neutral text-xs">Categories</span>
+              <span class="badge badge-neutral text-xs" style="font-size: 10px;">● Live Catalog</span>
             </div>
             <div style="position: relative; height: 240px; width: 100%; display: flex; align-items: center; justify-content: center;">
               <canvas id="categoryChart"></canvas>
@@ -347,7 +347,7 @@
       isEvaluatorMode,
       SUPER_ADMIN_EMAIL 
     } from '../js/auth.js';
-    import { getDashboardMetrics } from '../js/firestore.js';
+    import { getDashboardMetrics, subscribeToDashboardRealtime } from '../js/firestore.js';
     import { formatCurrency, formatDate, formatProductImage, showToast } from '../js/utils.js';
 
     // DOM References
@@ -443,76 +443,81 @@
       return true;
     }
 
-    // Fetch and render dashboard metrics
+    // Update Dashboard UI with metrics and live data
+    function updateDashboardUI(metrics) {
+      if (!metrics) return;
+      const { totalSales, totalOrders, totalProducts, totalCustomers, pendingOrdersCount, recentOrders, lowStockProducts } = metrics;
+
+      // Render KPI values
+      if (metricSales) metricSales.textContent = formatCurrency(totalSales);
+      if (metricOrders) metricOrders.textContent = totalOrders;
+      if (metricProducts) metricProducts.textContent = totalProducts;
+      if (metricCustomers) metricCustomers.textContent = totalCustomers;
+      if (metricPending) {
+        metricPending.innerHTML = pendingOrdersCount > 0 
+          ? `<span class="badge badge-warning text-xs">${pendingOrdersCount} pending action</span>` 
+          : `<span class="text-xs text-secondary">All orders fulfilled</span>`;
+      }
+
+      // Render Recent Orders
+      if (recentOrdersTbody) {
+        if (!recentOrders || recentOrders.length === 0) {
+          recentOrdersTbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="text-center py-6 text-secondary text-xs">
+                No orders recorded in Cloud Firestore yet.
+              </td>
+            </tr>
+          `;
+        } else {
+          recentOrdersTbody.innerHTML = recentOrders.map(order => {
+            const { id, customer, createdAt, total, status = 'Pending' } = order || {};
+            const badgeClass = status === 'Delivered' ? 'badge-success' : status === 'Pending' ? 'badge-warning' : 'badge-neutral';
+            
+            return `
+              <tr>
+                <td><strong class="text-xs text-primary">#${id.substring(0, 10)}</strong></td>
+                <td class="text-xs">
+                  <div class="font-medium">${customer?.name || 'Guest'}</div>
+                  <div class="text-secondary" style="font-size: 10px;">${customer?.email || ''}</div>
+                </td>
+                <td class="text-xs text-secondary">${formatDate(createdAt)}</td>
+                <td class="text-xs font-semibold">${formatCurrency(total || 0)}</td>
+                <td><span class="badge ${badgeClass} text-xs">${status}</span></td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+
+      // Render Low Stock Inventory
+      if (lowStockList) {
+        if (!lowStockProducts || lowStockProducts.length === 0) {
+          lowStockList.innerHTML = `
+            <div class="text-xs text-secondary text-center py-3">All inventory stock levels are healthy.</div>
+          `;
+        } else {
+          lowStockList.innerHTML = lowStockProducts.map(p => `
+            <div class="flex items-center justify-between text-xs py-2 border-b" style="border-color: var(--color-border-subtle);">
+              <div class="flex items-center gap-2">
+                <img src="${formatProductImage(p.image)}" alt="${p.title}" style="width: 28px; height: 28px; border-radius: var(--radius-sm); object-fit: cover;" onerror="this.src='../assets/product_tee.png'">
+                <span class="font-medium truncate" style="max-width: 140px;">${p.title}</span>
+              </div>
+              <span class="badge badge-warning text-xs">${p.stock} left</span>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Render Charts with live metrics
+      renderDashboardCharts(metrics);
+    }
+
+    // Fetch and render initial dashboard metrics
     async function loadDashboardData() {
       try {
         const metrics = await getDashboardMetrics();
-        const { totalSales, totalOrders, totalProducts, totalCustomers, pendingOrdersCount, recentOrders, lowStockProducts } = metrics;
-
-        // Render KPI values
-        if (metricSales) metricSales.textContent = formatCurrency(totalSales);
-        if (metricOrders) metricOrders.textContent = totalOrders;
-        if (metricProducts) metricProducts.textContent = totalProducts;
-        if (metricCustomers) metricCustomers.textContent = totalCustomers;
-        if (metricPending) {
-          metricPending.innerHTML = pendingOrdersCount > 0 
-            ? `<span class="badge badge-warning text-xs">${pendingOrdersCount} pending action</span>` 
-            : `<span class="text-xs text-secondary">All orders fulfilled</span>`;
-        }
-
-        // Render Recent Orders
-        if (recentOrdersTbody) {
-          if (!recentOrders || recentOrders.length === 0) {
-            recentOrdersTbody.innerHTML = `
-              <tr>
-                <td colspan="5" class="text-center py-6 text-secondary text-xs">
-                  No orders have been recorded in Cloud Firestore yet.
-                </td>
-              </tr>
-            `;
-          } else {
-            recentOrdersTbody.innerHTML = recentOrders.map(order => {
-              const { id, customer, createdAt, total, status = 'Pending' } = order || {};
-              const badgeClass = status === 'Delivered' ? 'badge-success' : status === 'Pending' ? 'badge-warning' : 'badge-neutral';
-              
-              return `
-                <tr>
-                  <td><strong class="text-xs text-primary">#${id.substring(0, 10)}</strong></td>
-                  <td class="text-xs">
-                    <div class="font-medium">${customer?.name || 'Guest'}</div>
-                    <div class="text-secondary" style="font-size: 10px;">${customer?.email || ''}</div>
-                  </td>
-                  <td class="text-xs text-secondary">${formatDate(createdAt)}</td>
-                  <td class="text-xs font-semibold">${formatCurrency(total || 0)}</td>
-                  <td><span class="badge ${badgeClass} text-xs">${status}</span></td>
-                </tr>
-              `;
-            }).join('');
-          }
-        }
-
-        // Render Low Stock Inventory
-        if (lowStockList) {
-          if (!lowStockProducts || lowStockProducts.length === 0) {
-            lowStockList.innerHTML = `
-              <div class="text-xs text-secondary text-center py-3">All inventory stock levels are healthy.</div>
-            `;
-          } else {
-            lowStockList.innerHTML = lowStockProducts.map(p => `
-              <div class="flex items-center justify-between text-xs py-2 border-b" style="border-color: var(--color-border-subtle);">
-                <div class="flex items-center gap-2">
-                  <img src="${formatProductImage(p.image)}" alt="${p.title}" style="width: 28px; height: 28px; border-radius: var(--radius-sm); object-fit: cover;" onerror="this.src='../assets/product_tee.png'">
-                  <span class="font-medium truncate" style="max-width: 140px;">${p.title}</span>
-                </div>
-                <span class="badge badge-warning text-xs">${p.stock} left</span>
-              </div>
-            `).join('');
-          }
-        }
-
-        // Render Charts with live metrics
-        renderDashboardCharts(metrics);
-
+        updateDashboardUI(metrics);
       } catch (err) {
         console.error('[Admin] Error loading metrics from Firestore:', err);
         showToast('Error refreshing metrics from Cloud Firestore.', 'danger');
@@ -526,36 +531,30 @@
     function renderDashboardCharts(metrics) {
       if (typeof Chart === 'undefined') return;
 
-      // 1. Revenue Trajectory Chart
+      // 1. Revenue Trajectory Chart (Real-time from Firestore Orders)
       const revenueCanvas = document.getElementById('revenueChart');
       if (revenueCanvas) {
         const ctx = revenueCanvas.getContext('2d');
         if (revenueChartInstance) revenueChartInstance.destroy();
 
-        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        const totalSales = metrics?.totalSales || 850;
-        const baseSales = Math.max(90, totalSales / 7);
-        const dataPoints = [
-          Math.round(baseSales * 0.7),
-          Math.round(baseSales * 0.95),
-          Math.round(baseSales * 0.65),
-          Math.round(baseSales * 1.25),
-          Math.round(baseSales * 1.45),
-          Math.round(baseSales * 1.1),
-          Math.round(baseSales * 1.75)
-        ];
+        const revenueData = metrics?.revenueChartData || {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          fullDates: [],
+          values: [0, 0, 0, 0, 0, 0, 0],
+          ordersCounts: [0, 0, 0, 0, 0, 0, 0]
+        };
 
         revenueChartInstance = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: days,
+            labels: revenueData.labels,
             datasets: [{
-              label: 'Daily Revenue',
-              data: dataPoints,
+              label: 'Real Daily Sales',
+              data: revenueData.values,
               borderColor: '#18181b',
-              backgroundColor: 'rgba(24, 24, 27, 0.04)',
+              backgroundColor: 'rgba(24, 24, 27, 0.05)',
               fill: true,
-              tension: 0.35,
+              tension: 0.3,
               borderWidth: 2.2,
               pointBackgroundColor: '#18181b',
               pointBorderColor: '#ffffff',
@@ -574,7 +573,17 @@
                 padding: 10,
                 cornerRadius: 8,
                 callbacks: {
-                  label: (ctx) => ` Revenue: $${ctx.raw}`
+                  title: (tooltipItems) => {
+                    const idx = tooltipItems[0].dataIndex;
+                    const fullDate = revenueData.fullDates?.[idx] || tooltipItems[0].label;
+                    return `${tooltipItems[0].label} (${fullDate})`;
+                  },
+                  label: (ctx) => {
+                    const idx = ctx.dataIndex;
+                    const val = ctx.raw || 0;
+                    const count = revenueData.ordersCounts?.[idx] || 0;
+                    return ` Revenue: $${Number(val).toFixed(2)} (${count} order${count === 1 ? '' : 's'})`;
+                  }
                 }
               }
             },
@@ -584,6 +593,7 @@
                 ticks: { color: '#71717a', font: { size: 11, family: 'Inter' } }
               },
               y: {
+                beginAtZero: true,
                 grid: { color: 'rgba(0, 0, 0, 0.04)' },
                 ticks: {
                   color: '#71717a',
@@ -596,24 +606,38 @@
         });
       }
 
-      // 2. Category Distribution Donut Chart
+      // 2. Category Distribution Donut Chart (Real-time from Firestore Products)
       const catCanvas = document.getElementById('categoryChart');
       if (catCanvas) {
         const ctx = catCanvas.getContext('2d');
         if (categoryChartInstance) categoryChartInstance.destroy();
 
+        const categoryData = metrics?.categoryChartData || {
+          labels: ['Apparel', 'Footwear', 'Accessories', 'Carry'],
+          values: [0, 0, 0, 0],
+          totalItems: 0
+        };
+
+        const colorPalette = [
+          '#18181b', // dark charcoal
+          '#2563eb', // royal blue
+          '#10b981', // emerald
+          '#f59e0b', // amber
+          '#8b5cf6', // purple
+          '#ec4899', // pink
+          '#06b6d4', // cyan
+          '#84cc16'  // lime
+        ];
+
+        const chartColors = categoryData.labels.map((_, i) => colorPalette[i % colorPalette.length]);
+
         categoryChartInstance = new Chart(ctx, {
           type: 'doughnut',
           data: {
-            labels: ['Apparel', 'Footwear', 'Accessories', 'Carry'],
+            labels: categoryData.labels,
             datasets: [{
-              data: [35, 25, 25, 15],
-              backgroundColor: [
-                '#18181b',
-                '#2563eb',
-                '#10b981',
-                '#f59e0b'
-              ],
+              data: categoryData.values,
+              backgroundColor: chartColors,
               borderWidth: 2,
               borderColor: '#ffffff',
               hoverOffset: 5
@@ -628,7 +652,7 @@
                 position: 'bottom',
                 labels: {
                   boxWidth: 10,
-                  padding: 10,
+                  padding: 8,
                   color: '#71717a',
                   font: { size: 11, family: 'Inter' }
                 }
@@ -636,7 +660,15 @@
               tooltip: {
                 backgroundColor: '#09090b',
                 padding: 10,
-                cornerRadius: 8
+                cornerRadius: 8,
+                callbacks: {
+                  label: (ctx) => {
+                    const val = ctx.raw || 0;
+                    const total = categoryData.totalItems || metrics?.totalProducts || 1;
+                    const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+                    return ` ${ctx.label}: ${val} item${val === 1 ? '' : 's'} (${pct}%)`;
+                  }
+                }
               }
             }
           }
@@ -665,11 +697,16 @@
       });
     }
 
-    // Initialize Auth Listener & Load Data
+    // Initialize Auth Listener & Live Firestore Data
+    let liveUnsubscribe = null;
     onUserAuthStateChanged(async (user) => {
       const isAuthorized = await verifyAdminAccess(user);
       if (isAuthorized) {
-        loadDashboardData();
+        await loadDashboardData();
+        if (liveUnsubscribe) liveUnsubscribe();
+        liveUnsubscribe = subscribeToDashboardRealtime((liveMetrics) => {
+          updateDashboardUI(liveMetrics);
+        });
       }
     });
   </script>
