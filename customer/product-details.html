@@ -303,6 +303,7 @@
     import { addToCart, getCartItemCount } from '../js/cart.js';
     import { initNavbarAuth } from '../js/auth.js';
     import { formatCurrency, formatProductImage, showToast, getQueryParams, initScrollReveal, triggerBadgePop, triggerCartBounce } from '../js/utils.js';
+    import { attachProductCardListeners } from '../js/quick-view.js';
 
     // Initialize Navbar Auth State
     initNavbarAuth();
@@ -319,6 +320,11 @@
     const relatedContainer = document.getElementById('related-products-grid');
     const relatedSection = document.getElementById('related-section');
     const cartBadge = document.getElementById('cart-count-badge');
+
+    // Attach card delegation on related products
+    if (relatedContainer) {
+      attachProductCardListeners(relatedContainer);
+    }
 
     function updateBadge() {
       if (cartBadge) cartBadge.textContent = getCartItemCount();
@@ -632,11 +638,11 @@
               <div class="product-content">
                 <span class="product-category">${cat}</span>
                 <h3 class="product-name">
-                  <a href="product-details.html?id=${id}">${title}</a>
+                  <a href="product-details.html?id=${id}" class="product-title-link">${title}</a>
                 </h3>
                 <div class="product-footer">
                   <span class="product-price">${formatCurrency(price)}</span>
-                  <a href="product-details.html?id=${id}" class="btn btn-outline btn-sm">View Item</a>
+                  <button type="button" class="btn btn-outline btn-sm btn-quick-view">Preview</button>
                 </div>
               </div>
             </article>

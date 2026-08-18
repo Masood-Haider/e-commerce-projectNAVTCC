@@ -498,6 +498,7 @@
     import { addToCart, getCartItemCount } from '../js/cart.js';
     import { initNavbarAuth } from '../js/auth.js';
     import { formatCurrency, formatProductImage, showToast, initScrollReveal, triggerBadgePop, triggerCartBounce } from '../js/utils.js';
+    import { attachProductCardListeners } from '../js/quick-view.js';
 
     // Initialize Navbar Auth State
     initNavbarAuth();
@@ -517,6 +518,11 @@
     });
 
     const featuredGrid = document.getElementById('featured-products-grid');
+
+    // Attach card delegation for initial/fallback cards
+    if (featuredGrid) {
+      attachProductCardListeners(featuredGrid);
+    }
 
     // Render Shimmer Skeletons
     function renderFeaturedSkeletons() {
@@ -571,11 +577,11 @@
               <div class="product-content">
                 <span class="product-category">${category}</span>
                 <h3 class="product-name">
-                  <a href="product-details.html?id=${id}">${title}</a>
+                  <a href="product-details.html?id=${id}" class="product-title-link">${title}</a>
                 </h3>
                 <div class="product-footer">
                   <span class="product-price">${formatCurrency(price)}</span>
-                  <a href="product-details.html?id=${id}" class="btn btn-ghost btn-sm">View</a>
+                  <button type="button" class="btn btn-ghost btn-sm btn-quick-view">Preview</button>
                 </div>
               </div>
             </article>
