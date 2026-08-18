@@ -64,7 +64,7 @@ a {
   transition: color var(--transition-fast);
 }
 
-a:hover {
+a:not(.btn):hover {
   color: var(--color-primary-hover);
 }
 
@@ -175,17 +175,22 @@ button, input, optgroup, select, textarea {
 
 .btn-primary {
   background-color: var(--color-primary);
-  color: var(--color-text-inverse);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  color: var(--color-text-inverse) !important;
+  border-color: var(--color-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .btn-primary:hover {
   background-color: var(--color-primary-hover);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
+  color: var(--color-text-inverse) !important;
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .btn-primary:active {
+  background-color: var(--color-primary-active);
+  color: var(--color-text-inverse) !important;
   transform: translateY(0);
 }
 
