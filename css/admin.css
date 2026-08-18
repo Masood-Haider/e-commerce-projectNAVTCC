@@ -37,7 +37,8 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.admin-logo {
+.admin-logo,
+.admin-brand-logo {
   font-size: var(--text-base);
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
@@ -45,12 +46,18 @@
   align-items: center;
   gap: var(--space-2);
   letter-spacing: var(--tracking-wide);
+  text-decoration: none;
 }
 
-.admin-logo svg {
+.admin-logo svg,
+.admin-brand-logo svg,
+.admin-sidebar-header svg {
   width: 20px;
   height: 20px;
+  max-width: 20px;
+  max-height: 20px;
   color: var(--color-primary);
+  flex-shrink: 0;
 }
 
 .admin-sidebar-nav {

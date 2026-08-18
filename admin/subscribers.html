@@ -3,22 +3,149 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Newsletter Subscribers | AURA Studio</title>
-  <meta name="description" content="View and manage audience newsletter subscriptions stored in Cloud Firestore.">
+  <title>Newsletter Subscribers | AURA Admin</title>
+  <meta name="description" content="View and manage audience newsletter subscribers synced from Cloud Firestore.">
   <link rel="stylesheet" href="../css/admin.css">
+  <style>
+    /* Modal Layer Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(9, 9, 11, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 480px;
+      background-color: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      padding: var(--space-6);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      padding: var(--space-1);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-subtle);
+    }
+
+    .subscriber-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-bg-subtle);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-primary);
+      font-weight: var(--font-bold);
+      font-size: var(--text-xs);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .skeleton-tr td {
+      padding: var(--space-4) var(--space-6);
+    }
+
+    .skeleton-bar {
+      height: 14px;
+      background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-xs);
+    }
+
+    .badge-source {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: var(--font-medium);
+      background-color: var(--color-bg-subtle);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+    }
+
+    .badge-status-active {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: var(--font-semibold);
+      background-color: var(--color-success-subtle);
+      border: 1px solid var(--color-success-border);
+      color: var(--color-success-text);
+    }
+
+    .status-dot-active {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--color-success);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
 </head>
 <body>
 
-  <div class="admin-layout" id="admin-page-root">
+  <div class="admin-layout">
     
     <!-- Mobile Backdrop -->
-    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    <div class="admin-sidebar-backdrop" id="sidebar-backdrop"></div>
 
-    <!-- Admin Sidebar Navigation -->
+    <!-- Admin Sidebar -->
     <aside class="admin-sidebar" id="admin-sidebar">
       
       <div class="admin-sidebar-header">
-        <a href="dashboard.html" class="admin-brand-logo">
+        <a href="dashboard.html" class="admin-logo">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
@@ -79,10 +206,10 @@
 
     </aside>
 
-    <!-- Admin Main Body Area -->
+    <!-- Admin Main Body -->
     <div class="admin-main">
       
-      <!-- Topbar Header -->
+      <!-- Topbar -->
       <header class="admin-topbar">
         
         <div class="admin-topbar-left">
@@ -92,44 +219,45 @@
             </svg>
           </button>
           
-          <div class="admin-breadcrumb">
-            <span>Admin</span>
+          <div class="flex items-center gap-2 text-sm text-secondary">
+            <a href="dashboard.html" class="hover:underline">Admin</a>
             <span>/</span>
-            <span class="text-primary font-medium">Newsletter Subscribers</span>
+            <span class="text-primary font-semibold">Newsletter Subscribers</span>
           </div>
         </div>
 
         <div class="admin-topbar-right">
-          <div class="admin-user-pill">
+          <div class="admin-user-profile" id="admin-profile-pill">
             <div class="admin-avatar" id="admin-avatar-initial">A</div>
-            <div class="admin-user-meta">
-              <span class="admin-user-name" id="admin-display-name">Administrator</span>
-              <span class="admin-user-role" id="admin-email-tag">admin@aurastore.com</span>
+            <div class="flex flex-col text-left">
+              <span class="text-xs font-bold" id="admin-display-name">Admin User</span>
+              <span class="text-xs text-secondary" id="admin-email-tag" style="font-size: 10px;">admin@aurastore.com</span>
             </div>
           </div>
         </div>
 
       </header>
 
-      <!-- Main Page Content -->
-      <main class="admin-content" id="admin-main-content">
+      <!-- Main Content Area -->
+      <main class="admin-page-content" id="admin-page-root">
         
-        <!-- Header & Action Row -->
-        <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <!-- Header Title and Actions -->
+        <div class="admin-page-header">
           <div>
-            <h1 class="text-2xl font-bold tracking-tight">Audience & Subscribers</h1>
-            <p class="text-sm text-secondary">View and manage email subscribers synced from Cloud Firestore.</p>
+            <h1 class="text-2xl font-bold tracking-tight">Newsletter Subscribers</h1>
+            <p class="text-sm text-secondary">View, filter, and export audience contacts subscribed from Cloud Firestore.</p>
           </div>
 
           <div class="flex items-center gap-3">
-            <button id="btn-copy-all" class="btn-admin-secondary">
+            <button id="btn-export-csv" class="btn-admin-secondary">
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              <span>Copy All Emails</span>
+              <span>Export CSV</span>
             </button>
+
             <button id="btn-refresh-subscribers" class="btn-admin-primary">
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg id="refresh-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span>Refresh List</span>
@@ -137,45 +265,106 @@
           </div>
         </div>
 
-        <!-- Toolbar / Search Card -->
-        <div class="admin-toolbar-card">
-          <div class="admin-search-wrapper">
-            <svg class="admin-search-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input 
-              type="search" 
-              id="search-subscribers-input" 
-              class="admin-search-input" 
-              placeholder="Search subscribers by email address..." 
-              autocomplete="off"
-            >
+        <!-- KPI Metrics Grid -->
+        <div class="admin-kpi-grid mb-6">
+          
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Total Subscribers</span>
+              <div class="kpi-icon-wrapper">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-total-count">0</div>
+            <div class="kpi-footer">
+              <span class="text-xs text-secondary">Audience database records</span>
+            </div>
           </div>
 
-          <div class="text-xs text-secondary font-medium" id="subscribers-count-summary">
-            Loading subscribers...
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Active Reachable</span>
+              <div class="kpi-icon-wrapper">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-active-count">0</div>
+            <div class="kpi-footer">
+              <span class="text-xs text-success font-medium">100% email deliverable status</span>
+            </div>
+          </div>
+
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Latest Subscription</span>
+              <div class="kpi-icon-wrapper">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-latest-date" style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin-top: 4px;">&mdash;</div>
+            <div class="kpi-footer">
+              <span class="text-xs text-secondary">Most recent newsletter sign-up</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="card mb-6" style="overflow: hidden;">
+          <div class="admin-toolbar-card">
+            
+            <div class="admin-toolbar-left" style="flex: 1; max-width: 480px;">
+              <div class="admin-search-wrapper" style="width: 100%;">
+                <svg class="admin-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input 
+                  type="text" 
+                  id="search-subscribers-input" 
+                  class="admin-search-input" 
+                  placeholder="Search subscribers by email address..." 
+                  autocomplete="off"
+                >
+                <button type="button" id="btn-clear-search" style="display: none; position: absolute; right: 10px; background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 14px;">✕</button>
+              </div>
+            </div>
+
+            <div class="admin-toolbar-right flex items-center gap-3">
+              <div class="text-xs text-secondary font-medium" id="subscribers-count-summary">
+                Loading subscribers...
+              </div>
+
+              <button id="btn-copy-all-emails" class="btn btn-outline btn-xs" title="Copy all filtered emails as comma-separated list">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                <span>Copy Emails</span>
+              </button>
+            </div>
+
           </div>
         </div>
 
         <!-- Subscribers Table Card -->
-        <div class="card card-body" style="padding: 0; overflow: hidden;">
-          <div class="table-responsive">
-            <table class="table">
+        <div class="card" style="overflow: hidden;">
+          <div class="admin-table-container">
+            <table class="admin-table">
               <thead>
                 <tr>
-                  <th>Subscriber Email</th>
-                  <th>Subscribed Date</th>
-                  <th>Source</th>
-                  <th>Status</th>
-                  <th class="text-right">Actions</th>
+                  <th style="width: 45%;">Subscriber Email</th>
+                  <th style="width: 25%;">Subscribed Date</th>
+                  <th style="width: 15%;">Status</th>
+                  <th style="width: 15%; text-align: right;">Actions</th>
                 </tr>
               </thead>
               <tbody id="subscribers-tbody">
-                <tr>
-                  <td colspan="5" class="text-center py-8 text-secondary">
-                    Loading subscriber records from Cloud Firestore...
-                  </td>
-                </tr>
+                <!-- Loaded Dynamically -->
               </tbody>
             </table>
           </div>
@@ -185,6 +374,43 @@
 
     </div>
 
+  </div>
+
+  <!-- Remove / Delete Confirmation Modal -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="flex items-center gap-2">
+          <div style="width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--color-danger-subtle); color: var(--color-danger); display: flex; align-items: center; justify-content: center;">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </div>
+          <h3 class="text-base font-bold">Remove Subscriber</h3>
+        </div>
+        <button class="modal-close-btn" id="modal-close-delete-btn" aria-label="Close modal">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="py-2">
+        <p class="text-sm text-secondary mb-4">
+          Are you sure you want to remove <strong id="delete-subscriber-email-display" class="text-primary">this subscriber</strong> from the newsletter audience?
+        </p>
+        <p class="text-xs text-muted">
+          This will permanently delete the subscription record from Cloud Firestore. They will no longer receive broadcast newsletter emails.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 mt-6 pt-4" style="border-top: 1px solid var(--color-border-subtle);">
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-cancel-delete">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-delete" style="background-color: var(--color-danger); border-color: var(--color-danger); color: white;">
+          Remove Subscriber
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Modular Scripts -->
@@ -204,15 +430,31 @@
 
     // State
     let subscribersCache = [];
+    let subscriberToDelete = null;
 
     // DOM Elements
     const subscribersTbody = document.getElementById('subscribers-tbody');
     const countSummary = document.getElementById('subscribers-count-summary');
     const searchInput = document.getElementById('search-subscribers-input');
+    const btnClearSearch = document.getElementById('btn-clear-search');
     const btnRefresh = document.getElementById('btn-refresh-subscribers');
-    const btnCopyAll = document.getElementById('btn-copy-all');
+    const btnExportCsv = document.getElementById('btn-export-csv');
+    const btnCopyAll = document.getElementById('btn-copy-all-emails');
+    const refreshIcon = document.getElementById('refresh-icon');
 
-    // Sidebar Mobile Toggle
+    // KPI DOM
+    const kpiTotal = document.getElementById('kpi-total-count');
+    const kpiActive = document.getElementById('kpi-active-count');
+    const kpiLatest = document.getElementById('kpi-latest-date');
+
+    // Delete Modal DOM
+    const deleteModal = document.getElementById('delete-modal');
+    const modalCloseDeleteBtn = document.getElementById('modal-close-delete-btn');
+    const btnCancelDelete = document.getElementById('btn-cancel-delete');
+    const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+    const deleteEmailDisplay = document.getElementById('delete-subscriber-email-display');
+
+    // Mobile Sidebar Elements
     const mobileToggle = document.getElementById('mobile-sidebar-toggle');
     const sidebar = document.getElementById('admin-sidebar');
     const backdrop = document.getElementById('sidebar-backdrop');
@@ -257,7 +499,7 @@
               </div>
               <h1 class="text-2xl font-bold mb-2">Evaluator Admin Access</h1>
               <p class="text-sm text-secondary mb-6">
-                Signed in as <strong>${activeUser.email}</strong>. Click below to enable full Administrator access to view subscribers.
+                Signed in as <strong>${activeUser.email}</strong>. Click below to enable full Administrator access to view and manage newsletter subscribers.
               </p>
               <div class="flex flex-col gap-3 max-w-xs mx-auto">
                 <button id="btn-unlock-evaluator" class="btn btn-primary btn-sm">
@@ -298,25 +540,66 @@
       return true;
     }
 
-    // Render Table Rows
+    // Render Shimmer Skeletons
+    function renderLoadingRows() {
+      if (!subscribersTbody) return;
+      subscribersTbody.innerHTML = Array.from({ length: 4 }).map(() => `
+        <tr class="skeleton-tr">
+          <td>
+            <div class="flex items-center gap-3">
+              <div class="skeleton-bar" style="width: 36px; height: 36px; border-radius: 50%;"></div>
+              <div class="flex flex-col gap-1">
+                <div class="skeleton-bar" style="width: 140px;"></div>
+                <div class="skeleton-bar" style="width: 80px;"></div>
+              </div>
+            </div>
+          </td>
+          <td><div class="skeleton-bar" style="width: 110px;"></div></td>
+          <td><div class="skeleton-bar" style="width: 70px;"></div></td>
+          <td class="text-right"><div class="skeleton-bar" style="width: 80px; margin-left: auto;"></div></td>
+        </tr>
+      `).join('');
+    }
+
+    // Update KPI Metrics Cards
+    function updateKPIs(list) {
+      if (kpiTotal) kpiTotal.textContent = list.length;
+      if (kpiActive) {
+        const activeCount = list.filter(s => (s.status || 'active') === 'active').length;
+        kpiActive.textContent = activeCount;
+      }
+      if (kpiLatest) {
+        if (list.length > 0 && list[0].subscribedAt) {
+          kpiLatest.textContent = formatDate(list[0].subscribedAt);
+        } else {
+          kpiLatest.textContent = 'None yet';
+        }
+      }
+    }
+
+    // Render Subscribers Table
     function renderSubscribersTable(list) {
       if (!subscribersTbody) return;
 
-      if (!list || list.length === 0) {
+      if (list.length === 0) {
         subscribersTbody.innerHTML = `
           <tr>
-            <td colspan="5" class="text-center py-8 text-secondary">
-              <div style="max-width: 360px; margin: 0 auto;">
-                <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin: 0 auto 12px auto; color: var(--color-text-muted);">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+            <td colspan="4" style="text-align: center; padding: var(--space-12) var(--space-4);">
+              <div style="max-width: 320px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+                <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--color-bg-subtle); border: 1px solid var(--color-border); color: var(--color-text-muted); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-3);">
+                  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
                 <div class="font-bold text-sm text-primary mb-1">No subscribers found</div>
-                <div class="text-xs text-secondary">When customers subscribe on the storefront footer, their emails will sync directly here into Cloud Firestore.</div>
+                <p class="text-xs text-secondary mb-0">
+                  ${searchInput && searchInput.value.trim() ? 'No subscribers matched your search query.' : 'No email subscribers have joined the newsletter yet.'}
+                </p>
               </div>
             </td>
           </tr>
         `;
-        if (countSummary) countSummary.textContent = '0 subscribers';
+        if (countSummary) countSummary.textContent = '0 subscribers found';
         return;
       }
 
@@ -325,38 +608,58 @@
       }
 
       subscribersTbody.innerHTML = list.map(sub => {
-        const { id, email = '', subscribedAt, source = 'Storefront', status = 'active' } = sub;
+        const email = sub.email || 'Unknown';
+        const initial = (email.charAt(0) || 'S').toUpperCase();
+        const dateStr = sub.subscribedAt ? formatDate(sub.subscribedAt) : 'Recently';
+        const source = sub.source ? sub.source.replace(/_/g, ' ') : 'Storefront Footer';
+        const status = sub.status || 'active';
+
         return `
           <tr>
             <td>
-              <div class="font-semibold text-xs text-primary flex items-center gap-2">
-                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="text-secondary">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                </svg>
-                <span>${email}</span>
+              <div class="flex items-center gap-3">
+                <div class="subscriber-avatar">${initial}</div>
+                <div class="flex flex-col">
+                  <span class="font-medium text-sm text-primary">${email}</span>
+                  <span class="text-xs text-muted">ID: ${sub.id || 'N/A'}</span>
+                </div>
               </div>
             </td>
-            <td class="text-xs text-secondary">${formatDate(subscribedAt)}</td>
-            <td class="text-xs"><span class="badge badge-neutral text-xs">${source}</span></td>
-            <td class="text-xs"><span class="badge badge-success text-xs">${status}</span></td>
-            <td class="text-right">
-              <div class="flex items-center justify-end gap-2">
+            <td>
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-secondary">${dateStr}</span>
+                <span class="badge-source" style="margin-top: 2px; width: fit-content;">
+                  <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                  </svg>
+                  ${source}
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="badge-status-active">
+                <span class="status-dot-active"></span>
+                ${status.charAt(0).toUpperCase() + status.slice(1)}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <div class="flex items-center justify-end gap-1">
                 <button 
-                  class="btn-admin-icon btn-copy-email" 
+                  class="btn btn-ghost btn-xs btn-copy-email" 
                   data-email="${email}" 
-                  title="Copy email to clipboard"
-                  style="width: 32px; height: 32px;"
+                  title="Copy email address"
+                  style="padding: 4px 8px;"
                 >
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                 </button>
                 <button 
-                  class="btn-admin-icon btn-delete-sub text-danger" 
-                  data-id="${id}" 
-                  data-email="${email}"
-                  title="Delete subscriber"
-                  style="width: 32px; height: 32px; color: var(--color-danger);"
+                  class="btn btn-ghost btn-xs btn-delete-subscriber" 
+                  data-id="${sub.id}" 
+                  data-email="${email}" 
+                  title="Remove subscriber"
+                  style="color: var(--color-danger); padding: 4px 8px;"
                 >
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -368,104 +671,198 @@
         `;
       }).join('');
 
-      // Wire Copy Email Handlers
-      subscribersTbody.querySelectorAll('.btn-copy-email').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const email = btn.dataset.email;
+      // Bind Individual Copy Email Buttons
+      document.querySelectorAll('.btn-copy-email').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const email = btn.getAttribute('data-email');
           if (email) {
             navigator.clipboard.writeText(email);
-            showToast(`Copied "${email}" to clipboard.`, 'success');
+            showToast(`Copied ${email} to clipboard!`, 'success');
           }
         });
       });
 
-      // Wire Delete Subscriber Handlers (Super Admin protected)
-      subscribersTbody.querySelectorAll('.btn-delete-sub').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const { id, email } = btn.dataset;
-          const activeUser = getCurrentUser() || auth?.currentUser;
-
-          if (!isSuperAdmin(activeUser)) {
-            showToast(`Action Restricted: Subscriber deletion is disabled in Evaluator Mode to protect customer records. Permanent deletion is authorized only for Super Admin (${SUPER_ADMIN_EMAIL}).`, 'warning');
-            return;
-          }
-
-          if (confirm(`Unsubscribe "${email}" from Cloud Firestore?`)) {
-            try {
-              await deleteNewsletterSubscriber(id);
-              showToast(`Subscriber "${email}" removed from Firestore.`, 'success');
-              await loadSubscribers();
-            } catch (err) {
-              showToast(`Error deleting subscriber: ${err.message}`, 'danger');
-            }
-          }
+      // Bind Individual Delete Buttons
+      document.querySelectorAll('.btn-delete-subscriber').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.getAttribute('data-id');
+          const email = btn.getAttribute('data-email');
+          openDeleteModal({ id, email });
         });
       });
     }
 
-    // Filter subscribers
-    function filterSubscribers() {
+    // Filter Logic
+    function applyFilter() {
       const q = (searchInput?.value || '').trim().toLowerCase();
-      if (!q) {
-        renderSubscribersTable(subscribersCache);
-        return;
+      if (btnClearSearch) {
+        btnClearSearch.style.display = q ? 'block' : 'none';
       }
-      const filtered = subscribersCache.filter(s => (s.email || '').toLowerCase().includes(q));
+
+      let filtered = subscribersCache;
+      if (q) {
+        filtered = filtered.filter(sub => (sub.email || '').toLowerCase().includes(q));
+      }
       renderSubscribersTable(filtered);
     }
 
-    // Fetch and load from Cloud Firestore
+    // Load Subscribers from Cloud Firestore
     async function loadSubscribers() {
-      try {
-        subscribersTbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="text-center py-6 text-secondary text-xs">
-              <svg class="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation: spin 1s linear infinite; display: inline-block; margin-right: 6px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Fetching newsletter subscribers from Cloud Firestore...
-            </td>
-          </tr>
-        `;
+      renderLoadingRows();
+      if (refreshIcon) {
+        refreshIcon.style.transition = 'transform 0.5s ease';
+        refreshIcon.style.transform = 'rotate(360deg)';
+      }
 
-        subscribersCache = await getNewsletterSubscribers();
-        renderSubscribersTable(subscribersCache);
+      try {
+        const list = await getNewsletterSubscribers();
+        subscribersCache = list || [];
+        updateKPIs(subscribersCache);
+        applyFilter();
       } catch (err) {
-        console.error('[Admin] Error fetching subscribers:', err);
-        showToast('Failed to load newsletter subscribers from Firestore.', 'danger');
+        console.error('Failed to load subscribers:', err);
+        showToast('Error retrieving newsletter subscribers.', 'danger');
+        if (subscribersTbody) {
+          subscribersTbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="text-center py-6 text-danger text-sm">
+                Failed to load subscriber list. Please check your Firestore network connection.
+              </td>
+            </tr>
+          `;
+        }
+      } finally {
+        if (refreshIcon) {
+          setTimeout(() => {
+            refreshIcon.style.transform = 'none';
+          }, 500);
+        }
       }
     }
 
-    // Search filter listener
-    if (searchInput) {
-      searchInput.addEventListener('input', filterSubscribers);
+    // Delete Modal Operations
+    function openDeleteModal(sub) {
+      subscriberToDelete = sub;
+      if (deleteEmailDisplay) {
+        deleteEmailDisplay.textContent = sub.email;
+      }
+      if (deleteModal) {
+        deleteModal.classList.add('open');
+      }
     }
 
-    // Refresh listener
-    if (btnRefresh) {
-      btnRefresh.addEventListener('click', () => {
-        loadSubscribers();
-        showToast('Subscribers refreshed from Cloud Firestore.', 'neutral');
+    function closeDeleteModal() {
+      subscriberToDelete = null;
+      if (deleteModal) {
+        deleteModal.classList.remove('open');
+      }
+    }
+
+    if (modalCloseDeleteBtn) modalCloseDeleteBtn.addEventListener('click', closeDeleteModal);
+    if (btnCancelDelete) btnCancelDelete.addEventListener('click', closeDeleteModal);
+    if (deleteModal) {
+      deleteModal.addEventListener('click', (e) => {
+        if (e.target === deleteModal) closeDeleteModal();
       });
     }
 
-    // Copy All Emails listener
-    if (btnCopyAll) {
-      btnCopyAll.addEventListener('click', () => {
-        if (!subscribersCache || subscribersCache.length === 0) {
-          showToast('No subscriber emails available to copy.', 'warning');
+    if (btnConfirmDelete) {
+      btnConfirmDelete.addEventListener('click', async () => {
+        if (!subscriberToDelete || !subscriberToDelete.id) return;
+
+        btnConfirmDelete.disabled = true;
+        btnConfirmDelete.textContent = 'Removing...';
+
+        try {
+          await deleteNewsletterSubscriber(subscriberToDelete.id);
+          showToast(`Subscriber ${subscriberToDelete.email} removed.`, 'success');
+          closeDeleteModal();
+          // Reload
+          await loadSubscribers();
+        } catch (err) {
+          console.error('Failed to remove subscriber:', err);
+          showToast('Failed to delete subscriber record.', 'danger');
+        } finally {
+          btnConfirmDelete.disabled = false;
+          btnConfirmDelete.textContent = 'Remove Subscriber';
+        }
+      });
+    }
+
+    // Export to CSV Feature
+    if (btnExportCsv) {
+      btnExportCsv.addEventListener('click', () => {
+        if (subscribersCache.length === 0) {
+          showToast('No subscribers available to export.', 'info');
           return;
         }
-        const emailList = subscribersCache.map(s => s.email).filter(Boolean).join(', ');
-        navigator.clipboard.writeText(emailList);
-        showToast(`Copied ${subscribersCache.length} email addresses to clipboard!`, 'success');
+
+        const headers = ['Subscriber Email', 'Subscribed Date', 'Status', 'Acquisition Source', 'Document ID'];
+        const rows = subscribersCache.map(sub => [
+          `"${(sub.email || '').replace(/"/g, '""')}"`,
+          `"${(sub.subscribedAt || '').replace(/"/g, '""')}"`,
+          `"${(sub.status || 'active').replace(/"/g, '""')}"`,
+          `"${(sub.source || 'storefront_newsletter').replace(/"/g, '""')}"`,
+          `"${(sub.id || '').replace(/"/g, '""')}"`
+        ]);
+
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `aura_newsletter_subscribers_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showToast(`Exported ${subscribersCache.length} subscribers to CSV.`, 'success');
       });
     }
 
-    // Auth Initialization
+    // Copy All Emails
+    if (btnCopyAll) {
+      btnCopyAll.addEventListener('click', () => {
+        const q = (searchInput?.value || '').trim().toLowerCase();
+        let list = subscribersCache;
+        if (q) {
+          list = list.filter(sub => (sub.email || '').toLowerCase().includes(q));
+        }
+
+        if (list.length === 0) {
+          showToast('No emails found to copy.', 'info');
+          return;
+        }
+
+        const emailList = list.map(s => s.email).filter(Boolean).join(', ');
+        navigator.clipboard.writeText(emailList);
+        showToast(`Copied ${list.length} email addresses to clipboard!`, 'success');
+      });
+    }
+
+    // Search Input Listener
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilter);
+    }
+    if (btnClearSearch) {
+      btnClearSearch.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+          applyFilter();
+        }
+      });
+    }
+
+    // Refresh Button
+    if (btnRefresh) {
+      btnRefresh.addEventListener('click', loadSubscribers);
+    }
+
+    // Initialize Auth & Page Data
     onUserAuthStateChanged(async (user) => {
-      const authorized = await verifyAdminAccess(user);
-      if (authorized) {
+      const allowed = await verifyAdminAccess(user);
+      if (allowed) {
         await loadSubscribers();
       }
     });
