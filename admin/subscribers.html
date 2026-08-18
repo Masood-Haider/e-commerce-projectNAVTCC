@@ -7,6 +7,56 @@
   <meta name="description" content="View and manage audience newsletter subscribers synced from Cloud Firestore.">
   <link rel="stylesheet" href="../css/admin.css">
   <style>
+    /* Custom Subscribers Page Specific Styles */
+    .subscriber-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-bg-subtle);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-primary);
+      font-weight: var(--font-bold);
+      font-size: var(--text-xs);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .badge-source {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: var(--font-medium);
+      background-color: var(--color-bg-subtle);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+    }
+
+    .badge-status-active {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: var(--font-semibold);
+      background-color: var(--color-success-subtle);
+      border: 1px solid var(--color-success-border);
+      color: var(--color-success-text);
+    }
+
+    .status-dot-active {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--color-success);
+    }
+
     /* Modal Layer Styles */
     .modal-overlay {
       display: none;
@@ -62,22 +112,6 @@
       background-color: var(--color-bg-subtle);
     }
 
-    .subscriber-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--radius-full);
-      background-color: var(--color-bg-subtle);
-      border: 1px solid var(--color-border);
-      color: var(--color-text-primary);
-      font-weight: var(--font-bold);
-      font-size: var(--text-xs);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-transform: uppercase;
-      flex-shrink: 0;
-    }
-
     .skeleton-tr td {
       padding: var(--space-4) var(--space-6);
     }
@@ -88,39 +122,6 @@
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
       border-radius: var(--radius-xs);
-    }
-
-    .badge-source {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 2px 8px;
-      border-radius: var(--radius-full);
-      font-size: 11px;
-      font-weight: var(--font-medium);
-      background-color: var(--color-bg-subtle);
-      border: 1px solid var(--color-border);
-      color: var(--color-text-secondary);
-    }
-
-    .badge-status-active {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 2px 8px;
-      border-radius: var(--radius-full);
-      font-size: 11px;
-      font-weight: var(--font-semibold);
-      background-color: var(--color-success-subtle);
-      border: 1px solid var(--color-success-border);
-      color: var(--color-success-text);
-    }
-
-    .status-dot-active {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background-color: var(--color-success);
     }
 
     @keyframes fadeIn {
@@ -265,51 +266,51 @@
           </div>
         </div>
 
-        <!-- KPI Metrics Grid -->
-        <div class="admin-kpi-grid mb-6">
+        <!-- 3 KPI Metrics Grid -->
+        <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: var(--space-6);">
           
-          <div class="card kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-title">Total Subscribers</span>
-              <div class="kpi-icon-wrapper">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Total Subscribers</span>
+              <div class="metric-icon-wrap">
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
             </div>
-            <div class="kpi-value" id="kpi-total-count">0</div>
-            <div class="kpi-footer">
-              <span class="text-xs text-secondary">Audience database records</span>
+            <div class="metric-value" id="kpi-total-count">0</div>
+            <div class="metric-sub text-secondary">
+              Audience database records
             </div>
           </div>
 
-          <div class="card kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-title">Active Reachable</span>
-              <div class="kpi-icon-wrapper">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Active Reachable</span>
+              <div class="metric-icon-wrap">
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
             </div>
-            <div class="kpi-value" id="kpi-active-count">0</div>
-            <div class="kpi-footer">
-              <span class="text-xs text-success font-medium">100% email deliverable status</span>
+            <div class="metric-value" id="kpi-active-count">0</div>
+            <div class="metric-sub text-success flex items-center gap-1">
+              <span>●</span> 100% deliverable status
             </div>
           </div>
 
-          <div class="card kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-title">Latest Subscription</span>
-              <div class="kpi-icon-wrapper">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Latest Subscription</span>
+              <div class="metric-icon-wrap">
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
             </div>
-            <div class="kpi-value" id="kpi-latest-date" style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin-top: 4px;">&mdash;</div>
-            <div class="kpi-footer">
-              <span class="text-xs text-secondary">Most recent newsletter sign-up</span>
+            <div class="metric-value" id="kpi-latest-date" style="font-size: var(--text-2xl); font-weight: var(--font-bold);">&mdash;</div>
+            <div class="metric-sub text-secondary">
+              Most recent sign-up
             </div>
           </div>
 
@@ -319,28 +320,27 @@
         <div class="card mb-6" style="overflow: hidden;">
           <div class="admin-toolbar-card">
             
-            <div class="admin-toolbar-left" style="flex: 1; max-width: 480px;">
+            <div class="admin-toolbar-left" style="flex: 1; max-width: 460px;">
               <div class="admin-search-wrapper" style="width: 100%;">
-                <svg class="admin-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="admin-search-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input 
-                  type="text" 
+                  type="search" 
                   id="search-subscribers-input" 
                   class="admin-search-input" 
                   placeholder="Search subscribers by email address..." 
                   autocomplete="off"
                 >
-                <button type="button" id="btn-clear-search" style="display: none; position: absolute; right: 10px; background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 14px;">✕</button>
               </div>
             </div>
 
             <div class="admin-toolbar-right flex items-center gap-3">
-              <div class="text-xs text-secondary font-medium" id="subscribers-count-summary">
+              <span class="badge badge-neutral text-xs" id="subscribers-count-summary" style="padding: 4px 10px; font-weight: var(--font-medium);">
                 Loading subscribers...
-              </div>
+              </span>
 
-              <button id="btn-copy-all-emails" class="btn btn-outline btn-xs" title="Copy all filtered emails as comma-separated list">
+              <button id="btn-copy-all-emails" class="btn btn-outline btn-xs flex items-center gap-1.5" style="padding: 6px 12px; height: 32px; font-weight: var(--font-medium); cursor: pointer;" title="Copy all filtered emails as comma-separated list">
                 <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                 </svg>
@@ -436,7 +436,6 @@
     const subscribersTbody = document.getElementById('subscribers-tbody');
     const countSummary = document.getElementById('subscribers-count-summary');
     const searchInput = document.getElementById('search-subscribers-input');
-    const btnClearSearch = document.getElementById('btn-clear-search');
     const btnRefresh = document.getElementById('btn-refresh-subscribers');
     const btnExportCsv = document.getElementById('btn-export-csv');
     const btnCopyAll = document.getElementById('btn-copy-all-emails');
@@ -697,10 +696,6 @@
     // Filter Logic
     function applyFilter() {
       const q = (searchInput?.value || '').trim().toLowerCase();
-      if (btnClearSearch) {
-        btnClearSearch.style.display = q ? 'block' : 'none';
-      }
-
       let filtered = subscribersCache;
       if (q) {
         filtered = filtered.filter(sub => (sub.email || '').toLowerCase().includes(q));
@@ -844,14 +839,6 @@
     // Search Input Listener
     if (searchInput) {
       searchInput.addEventListener('input', applyFilter);
-    }
-    if (btnClearSearch) {
-      btnClearSearch.addEventListener('click', () => {
-        if (searchInput) {
-          searchInput.value = '';
-          applyFilter();
-        }
-      });
     }
 
     // Refresh Button

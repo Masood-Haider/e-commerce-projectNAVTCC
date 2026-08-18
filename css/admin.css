@@ -298,6 +298,11 @@
   left: 0.875rem;
   top: 50%;
   transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  max-width: 15px;
+  max-height: 15px;
+  flex-shrink: 0;
   color: var(--color-text-muted);
   pointer-events: none;
   transition: color var(--transition-fast);
