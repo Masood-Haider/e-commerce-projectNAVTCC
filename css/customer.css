@@ -383,6 +383,11 @@
 }
 
 /* --- Categories Showcase --- */
+.categories-section {
+  margin-top: var(--space-16);
+  margin-bottom: var(--space-16);
+}
+
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
