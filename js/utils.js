@@ -214,3 +214,53 @@ export function attachRealtimeValidation(inputEl, validateFn) {
   inputEl.addEventListener('input', validate);
   inputEl.addEventListener('blur', validate);
 }
+
+/**
+ * Initialize Smooth Dark Split-Screen Curtain Preloader Intro
+ */
+export function initSplashIntro(forceShow = false) {
+  if (typeof window === 'undefined') return;
+
+  // Check if splash has already been shown in this browser session
+  if (!forceShow && sessionStorage.getItem('aura_splash_shown')) {
+    return;
+  }
+  sessionStorage.setItem('aura_splash_shown', 'true');
+
+  let overlay = document.getElementById('aura-splash-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'aura-splash-overlay';
+    overlay.innerHTML = `
+      <div class="aura-splash-curtain-top"></div>
+      <div class="aura-splash-brand">
+        <div class="aura-splash-logo-text">A U R A</div>
+        <div class="aura-splash-tagline">Studio • Minimalist Essentials</div>
+      </div>
+      <div class="aura-splash-curtain-bottom"></div>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  // Prevent scrolling during splash animation
+  document.body.style.overflow = 'hidden';
+
+  // Smooth curtain split sequence
+  setTimeout(() => {
+    overlay.classList.add('animating');
+  }, 500);
+
+  setTimeout(() => {
+    overlay.classList.add('done');
+    document.body.style.overflow = '';
+  }, 1650);
+}
+
+// Auto-run splash intro on initial load
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initSplashIntro());
+  } else {
+    initSplashIntro();
+  }
+}

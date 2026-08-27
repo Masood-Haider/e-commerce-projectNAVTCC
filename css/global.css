@@ -612,3 +612,111 @@ html.lenis, html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
+/* ==========================================================================
+   SPLIT-CURTAIN SPLASH / INITIAL PRELOADER ANIMATION
+   ========================================================================== */
+#aura-splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  pointer-events: all;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Top Curtain Panel */
+.aura-splash-curtain-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 52vh; /* Slight overlap to prevent seam line */
+  background: radial-gradient(circle at 50% 100%, #18181b 0%, #09090b 70%);
+  z-index: 10;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  /* Smooth rounded overlapping center edge */
+  clip-path: ellipse(130% 100% at 50% 0%);
+  transition: transform 1.15s cubic-bezier(0.77, 0, 0.175, 1);
+  will-change: transform;
+}
+
+/* Bottom Curtain Panel */
+.aura-splash-curtain-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 52vh; /* Slight overlap to prevent seam line */
+  background: radial-gradient(circle at 50% 0%, #18181b 0%, #09090b 70%);
+  z-index: 10;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+  /* Smooth rounded overlapping center edge */
+  clip-path: ellipse(130% 100% at 50% 100%);
+  transition: transform 1.15s cubic-bezier(0.77, 0, 0.175, 1);
+  will-change: transform;
+}
+
+/* Active State: Splits top panel up and bottom panel down */
+#aura-splash-overlay.animating .aura-splash-curtain-top {
+  transform: translateY(-104%);
+}
+
+#aura-splash-overlay.animating .aura-splash-curtain-bottom {
+  transform: translateY(104%);
+}
+
+/* Center Brand Logo Content */
+.aura-splash-brand {
+  position: fixed;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 0.45s ease-out, transform 0.45s ease-out;
+}
+
+.aura-splash-logo-text {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 0.5em;
+  color: #ffffff;
+  text-transform: uppercase;
+  font-family: var(--font-sans);
+  text-indent: 0.5em;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: splashPulse 1.2s ease-in-out infinite alternate;
+}
+
+.aura-splash-tagline {
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  color: #71717a;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-indent: 0.35em;
+}
+
+#aura-splash-overlay.animating .aura-splash-brand {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+#aura-splash-overlay.done {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+@keyframes splashPulse {
+  0% { opacity: 0.75; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1.02); }
+}
