@@ -309,9 +309,12 @@ button, input, optgroup, select, textarea {
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.is-revealed {
-  opacity: 1;
-  transform: translateY(0);
+.reveal-on-scroll.is-revealed,
+.hero .reveal-on-scroll,
+.hero-content,
+.hero-media-wrapper {
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 .reveal-delay-1 { transition-delay: 100ms; }
