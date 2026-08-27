@@ -191,9 +191,10 @@ export async function getProductById(productId) {
 
   try {
     const docRef = doc(db, 'products', productId);
-    const docSnap = await getDoc(docRef);
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 2000));
+    const docSnap = await Promise.race([getDoc(docRef), timeoutPromise]);
 
-    if (docSnap.exists()) {
+    if (docSnap && docSnap.exists()) {
       return {
         id: docSnap.id,
         ...docSnap.data()
