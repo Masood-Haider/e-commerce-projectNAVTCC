@@ -84,7 +84,9 @@ export async function getProducts({
   category = '',
   sort = 'featured',
   inStockOnly = false,
-  featuredOnly = false
+  featuredOnly = false,
+  recentOnly = false,
+  maxAgeDays = 60
 } = {}) {
   let products = [];
 
@@ -136,12 +138,23 @@ export async function getProducts({
     products = products.filter(p => Boolean(p?.featured));
   }
 
-  // 4. In Stock Filter
+  // 4. Recent / New Arrivals Filter (Added within 2 months / maxAgeDays)
+  if (recentOnly) {
+    const cutoffTime = Date.now() - (maxAgeDays * 24 * 60 * 60 * 1000);
+    products = products.filter(p => {
+      if (p?.badge === 'New') return true;
+      if (!p?.createdAt) return true;
+      const createdTime = new Date(p.createdAt).getTime();
+      return !isNaN(createdTime) && createdTime >= cutoffTime;
+    });
+  }
+
+  // 5. In Stock Filter
   if (inStockOnly) {
     products = products.filter(p => (p?.stock ?? 0) > 0);
   }
 
-  // 5. Sorting
+  // 6. Sorting
   switch (sort) {
     case 'price-asc':
       products.sort((a, b) => (a?.price ?? 0) - (b?.price ?? 0));

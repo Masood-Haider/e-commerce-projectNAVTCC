@@ -330,7 +330,8 @@
       query: '',
       category: 'all',
       sort: 'featured',
-      inStockOnly: false
+      inStockOnly: false,
+      recentOnly: false
     };
 
     // DOM Elements
@@ -342,6 +343,8 @@
     const resetBtn = document.getElementById('reset-filters-btn');
     const radioButtons = document.querySelectorAll('input[name="dept"]');
     const cartBadge = document.getElementById('cart-count-badge');
+    const pageTitleHeading = document.querySelector('.section-title');
+    const pageSubtitleHeading = document.querySelector('.section-subtitle');
 
     // Attach click delegation on products grid
     if (gridContainer) {
@@ -378,12 +381,31 @@
           query: state.query,
           category: state.category,
           sort: state.sort,
-          inStockOnly: state.inStockOnly
+          inStockOnly: state.inStockOnly,
+          recentOnly: state.recentOnly,
+          maxAgeDays: 60
         });
 
-        // Update count label
-        if (countLabel) {
-          countLabel.textContent = `Showing ${products.length} product${products.length === 1 ? '' : 's'}.`;
+        // Update titles and count label
+        if (state.recentOnly) {
+          if (pageTitleHeading) pageTitleHeading.textContent = 'New Arrivals';
+          if (pageSubtitleHeading) pageSubtitleHeading.textContent = 'Showing products added in the last 2 months.';
+          if (countLabel) {
+            countLabel.innerHTML = `Showing <strong>${products.length}</strong> new product${products.length === 1 ? '' : 's'} added in the last 2 months. <button type="button" class="btn btn-ghost btn-sm text-xs text-primary" id="btn-show-all-catalog" style="padding: 0 4px; text-decoration: underline;">Show All Catalog</button>`;
+            const showAllBtn = document.getElementById('btn-show-all-catalog');
+            if (showAllBtn) {
+              showAllBtn.addEventListener('click', () => {
+                state.recentOnly = false;
+                if (pageTitleHeading) pageTitleHeading.textContent = 'All Products';
+                if (pageSubtitleHeading) pageSubtitleHeading.textContent = 'Showing all products in our catalog.';
+                renderProducts();
+              });
+            }
+          }
+        } else {
+          if (countLabel) {
+            countLabel.textContent = `Showing ${products.length} product${products.length === 1 ? '' : 's'}.`;
+          }
         }
 
         // Empty State UI
@@ -393,11 +415,11 @@
               <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="text-muted" style="margin: 0 auto 16px auto;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <h3 class="text-xl font-bold mb-2">No matching products found</h3>
+              <h3 class="text-xl font-bold mb-2">No new arrivals found</h3>
               <p class="text-sm text-secondary mb-6" style="max-width: 400px; margin-left: auto; margin-right: auto;">
-                We couldn't find any products matching "${state.query || state.category}". Try adjusting your search query or department filters.
+                No items were added in the last 2 months matching your current filters.
               </p>
-              <button id="empty-reset-btn" class="btn btn-primary btn-sm">Clear All Filters</button>
+              <button id="empty-reset-btn" class="btn btn-primary btn-sm">Clear All Filters & Show Full Catalog</button>
             </div>
           `;
 
@@ -486,6 +508,10 @@
       state.category = 'all';
       state.sort = 'featured';
       state.inStockOnly = false;
+      state.recentOnly = false;
+
+      if (pageTitleHeading) pageTitleHeading.textContent = 'All Products';
+      if (pageSubtitleHeading) pageSubtitleHeading.textContent = 'Showing all products in our catalog.';
 
       if (searchInput) searchInput.value = '';
       if (sortSelect) sortSelect.value = 'featured';
@@ -496,7 +522,7 @@
 
     // Initialize & Listeners
     function init() {
-      // Read URL Query params (e.g. ?q=tee, ?category=apparel)
+      // Read URL Query params (e.g. ?q=tee, ?category=apparel, ?filter=new)
       const params = getQueryParams();
       if (params.q) {
         state.query = params.q;
@@ -507,7 +533,10 @@
       }
       if (params.filter === 'new') {
         state.sort = 'newest';
+        state.recentOnly = true;
         if (sortSelect) sortSelect.value = 'newest';
+        if (pageTitleHeading) pageTitleHeading.textContent = 'New Arrivals';
+        if (pageSubtitleHeading) pageSubtitleHeading.textContent = 'Showing products added in the last 2 months.';
       }
 
       // Sync categories

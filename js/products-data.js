@@ -22,6 +22,7 @@ export const PRODUCTS = [
     stock: 45,
     badge: 'New',
     featured: true,
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Charcoal', 'Bone White', 'Black']
   },
@@ -43,6 +44,7 @@ export const PRODUCTS = [
     stock: 18,
     badge: 'Best Seller',
     featured: true,
+    createdAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString(),
     sizes: ['40', '41', '42', '43', '44', '45'],
     colors: ['Optic White', 'Off-White / Gum']
   },
@@ -64,6 +66,7 @@ export const PRODUCTS = [
     stock: 7,
     badge: 'Low Stock',
     featured: true,
+    createdAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(),
     sizes: ['38mm', '42mm'],
     colors: ['Matte Black', 'Brushed Silver']
   },
@@ -85,6 +88,7 @@ export const PRODUCTS = [
     stock: 24,
     badge: null,
     featured: true,
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
     sizes: ['20L Capacity'],
     colors: ['Charcoal Black', 'Slate Grey']
   },
@@ -106,6 +110,7 @@ export const PRODUCTS = [
     stock: 15,
     badge: 'New',
     featured: false,
+    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
     sizes: ['Standard Fit'],
     colors: ['Matte Black', 'Gunmetal']
   },
@@ -127,6 +132,7 @@ export const PRODUCTS = [
     stock: 32,
     badge: 'Best Seller',
     featured: false,
+    createdAt: new Date(Date.now() - 110 * 24 * 60 * 60 * 1000).toISOString(),
     sizes: ['One Size'],
     colors: ['Noir Black', 'Caramel Tan']
   },
@@ -148,6 +154,7 @@ export const PRODUCTS = [
     stock: 20,
     badge: null,
     featured: false,
+    createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Washed Black', 'Heather Grey']
   },
@@ -169,6 +176,7 @@ export const PRODUCTS = [
     stock: 9,
     badge: 'Limited',
     featured: false,
+    createdAt: new Date(Date.now() - 140 * 24 * 60 * 60 * 1000).toISOString(),
     sizes: ['40', '41', '42', '43', '44', '45'],
     colors: ['Deep Black', 'Espresso Brown']
   }
