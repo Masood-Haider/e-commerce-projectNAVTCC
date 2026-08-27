@@ -268,9 +268,175 @@
           </button>
         </aside>
 
-        <!-- Dynamic Product Grid Area -->
+        <!-- Product Grid Area -->
         <div class="grid grid-cols-3 gap-6" id="products-grid-container">
-          <!-- Injected dynamically via JS array methods -->
+          
+          <!-- Product Card 1 -->
+          <article class="product-card" data-product-id="prod-101">
+            <a href="product-details.html?id=prod-101" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <span class="badge badge-neutral product-badge-overlay">New</span>
+              <img src="../assets/product_tee.png" alt="Organic Heavyweight Tee" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Apparel</span>
+              <h3 class="product-name">
+                <a href="product-details.html?id=prod-101" class="product-title-link">Organic Heavyweight Tee</a>
+              </h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$48.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-101" data-name="Organic Heavyweight Tee" data-price="48.00" data-category="Apparel" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Product Card 2 -->
+          <article class="product-card" data-product-id="prod-102">
+            <a href="product-details.html?id=prod-102" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <span class="badge badge-neutral product-badge-overlay">Best Seller</span>
+              <img src="../assets/product_sneaker.png" alt="Minimalist Leather Sneaker" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Footwear</span>
+              <h3 class="product-name">
+                <a href="product-details.html?id=prod-102" class="product-title-link">Minimalist Leather Sneaker</a>
+              </h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$165.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-102" data-name="Minimalist Leather Sneaker" data-price="165.00" data-category="Footwear" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Product Card 3 -->
+          <article class="product-card" data-product-id="prod-103">
+            <a href="product-details.html?id=prod-103" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <span class="badge badge-warning product-badge-overlay">Low Stock</span>
+              <img src="../assets/product_watch.png" alt="Ceramic Minimalist Watch" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Accessories</span>
+              <h3 class="product-name">
+                <a href="product-details.html?id=prod-103" class="product-title-link">Ceramic Minimalist Watch</a>
+              </h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$220.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-103" data-name="Ceramic Minimalist Watch" data-price="220.00" data-category="Accessories" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Product Card 4 -->
+          <article class="product-card" data-product-id="prod-104">
+            <a href="product-details.html?id=prod-104" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <img src="../assets/product_backpack.png" alt="Modular Commuter Backpack" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Carry</span>
+              <h3 class="product-name">
+                <a href="product-details.html?id=prod-104" class="product-title-link">Modular Commuter Backpack</a>
+              </h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$185.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-104" data-name="Modular Commuter Backpack" data-price="185.00" data-category="Carry" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Product Card 5 -->
+          <article class="product-card" data-product-id="prod-105">
+            <a href="product-details.html?id=prod-105" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <span class="badge badge-neutral product-badge-overlay">New</span>
+              <img src="../assets/product_sunglasses.png" alt="Polarized Titanium Sunglasses" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Accessories</span>
+              <h3 class="product-name">
+                <a href="product-details.html?id=prod-105" class="product-title-link">Polarized Titanium Sunglasses</a>
+              </h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$145.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-105" data-name="Polarized Titanium Sunglasses" data-price="145.00" data-category="Accessories" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Product Card 6 -->
+          <article class="product-card" data-product-id="prod-106">
+            <a href="product-details.html?id=prod-106" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <span class="badge badge-neutral product-badge-overlay">Best Seller</span>
+              <img src="../assets/product_wallet.png" alt="Slim Bifold Leather Cardholder" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Accessories</span>
+              <h3 class="product-name">
+                <a href="product-details.html?id=prod-106" class="product-title-link">Slim Bifold Leather Cardholder</a>
+              </h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$65.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-106" data-name="Slim Bifold Leather Cardholder" data-price="65.00" data-category="Accessories" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Product Card 7 -->
+          <article class="product-card" data-product-id="prod-107">
+            <a href="product-details.html?id=prod-107" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <img src="../assets/product_hoodie.png" alt="Heavyweight Loopback Hoodie" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Apparel</span>
+              <h3 class="product-name">
+                <a href="product-details.html?id=prod-107" class="product-title-link">Heavyweight Loopback Hoodie</a>
+              </h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$120.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-107" data-name="Heavyweight Loopback Hoodie" data-price="120.00" data-category="Apparel" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Product Card 8 -->
+          <article class="product-card" data-product-id="prod-108">
+            <a href="product-details.html?id=prod-108" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <span class="badge badge-warning product-badge-overlay">Limited</span>
+              <img src="../assets/product_boots.png" alt="Italian Suede Chelsea Boot" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Footwear</span>
+              <h3 class="product-name">
+                <a href="product-details.html?id=prod-108" class="product-title-link">Italian Suede Chelsea Boot</a>
+              </h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$240.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-108" data-name="Italian Suede Chelsea Boot" data-price="240.00" data-category="Footwear" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
         </div>
 
       </div>

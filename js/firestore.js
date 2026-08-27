@@ -92,25 +92,16 @@ export async function getProducts({
 
   try {
     const productsRef = collection(db, 'products');
-    const snapshot = await getDocs(productsRef);
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 2000));
+    const snapshot = await Promise.race([getDocs(productsRef), timeoutPromise]);
 
-    if (!snapshot.empty) {
+    if (snapshot && !snapshot.empty) {
       products = snapshot.docs.map(docSnap => ({
         id: docSnap.id,
         ...docSnap.data()
       }));
     } else {
-      // Auto-trigger seed in Firestore
-      await seedInitialProductsIfEmpty(true);
-      const seededSnap = await getDocs(productsRef);
-      if (!seededSnap.empty) {
-        products = seededSnap.docs.map(docSnap => ({
-          id: docSnap.id,
-          ...docSnap.data()
-        }));
-      } else {
-        products = [...PRODUCTS];
-      }
+      products = [...PRODUCTS];
     }
   } catch (err) {
     console.warn('[Firestore] Fetching from local product dataset fallback:', err);
