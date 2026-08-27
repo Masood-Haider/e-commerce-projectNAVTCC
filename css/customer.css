@@ -591,12 +591,19 @@
   line-height: var(--leading-normal);
 }
 
-.product-name a {
-  transition: color var(--transition-fast);
+.product-name a,
+.product-title-link {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  display: inline-block;
+  transition: color 200ms cubic-bezier(0.4, 0, 0.2, 1), transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.product-name a:hover {
-  color: var(--color-accent);
+.product-name a:hover,
+.product-title-link:hover,
+.product-card:hover .product-title-link {
+  color: #52525b;
+  transform: translateY(-1.5px);
 }
 
 .product-footer {
