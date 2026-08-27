@@ -41,31 +41,6 @@
       transform: scale(1.06);
     }
 
-    .zoom-hint-badge {
-      position: absolute;
-      bottom: 14px;
-      right: 14px;
-      background-color: rgba(9, 9, 11, 0.75);
-      backdrop-filter: blur(8px);
-      color: #ffffff;
-      font-size: var(--text-xs);
-      font-weight: 500;
-      padding: 0.35rem 0.75rem;
-      border-radius: var(--radius-full);
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all var(--transition-fast);
-      z-index: 5;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .details-gallery-box.is-zoomed .zoom-hint-badge {
-      background-color: var(--color-primary);
-      color: var(--color-text-inverse);
-    }
-
     .option-btn {
       padding: 0.45rem 1rem;
       border-radius: var(--radius-md);
@@ -461,7 +436,6 @@
                   id="main-product-img"
                   onerror="this.src='../assets/product_tee.png'"
                 >
-                <div class="zoom-hint-badge" id="zoom-hint-badge">🔍 Click to Zoom</div>
               </div>
             </div>
 
@@ -568,7 +542,6 @@
         // Interactive Click-to-Zoom & Click-to-Unzoom Handler
         const galleryBox = viewContainer.querySelector('#gallery-box');
         const mainImg = document.getElementById('main-product-img');
-        const zoomHint = document.getElementById('zoom-hint-badge');
 
         if (galleryBox && mainImg) {
           let isZoomed = false;
@@ -577,7 +550,6 @@
             isZoomed = !isZoomed;
             if (isZoomed) {
               galleryBox.classList.add('is-zoomed');
-              if (zoomHint) zoomHint.innerHTML = '🔍 Click to Unzoom';
               
               const rect = galleryBox.getBoundingClientRect();
               const xPercent = ((e.clientX - rect.left) / rect.width) * 100;
@@ -585,7 +557,6 @@
               mainImg.style.transformOrigin = `${xPercent}% ${yPercent}%`;
             } else {
               galleryBox.classList.remove('is-zoomed');
-              if (zoomHint) zoomHint.innerHTML = '🔍 Click to Zoom';
               mainImg.style.transformOrigin = '50% 50%';
             }
           });
@@ -603,7 +574,6 @@
             if (isZoomed) {
               isZoomed = false;
               galleryBox.classList.remove('is-zoomed');
-              if (zoomHint) zoomHint.innerHTML = '🔍 Click to Zoom';
               mainImg.style.transformOrigin = '50% 50%';
             }
           });
