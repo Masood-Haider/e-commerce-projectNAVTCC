@@ -130,7 +130,16 @@ export async function getProducts({
 
   // 2. Category Filter
   if (category && category !== 'all') {
-    products = products.filter(p => p?.category?.toLowerCase() === category.toLowerCase());
+    const targetCat = category.toLowerCase().trim();
+    products = products.filter(p => {
+      const pCat = (p?.category || '').toLowerCase().trim();
+      if (pCat === targetCat) return true;
+      if (targetCat === 'carry' && (pCat.includes('carry') || pCat.includes('bag'))) return true;
+      if (targetCat === 'accessories' && (pCat.includes('access') || pCat.includes('watch'))) return true;
+      if (targetCat === 'apparel' && (pCat.includes('apparel') || pCat.includes('tee') || pCat.includes('clothing'))) return true;
+      if (targetCat === 'footwear' && (pCat.includes('footwear') || pCat.includes('shoe') || pCat.includes('sneaker'))) return true;
+      return false;
+    });
   }
 
   // 3. Featured Only Filter

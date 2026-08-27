@@ -498,13 +498,15 @@
 
 /* --- Product Cards --- */
 .product-card {
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
+  opacity: 1 !important;
+  visibility: visible !important;
   transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -512,6 +514,17 @@
   transform: translateY(-3px);
   border-color: var(--color-border-hover);
   box-shadow: var(--shadow-md);
+}
+
+.empty-state-box {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  background-color: var(--color-bg-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-xl);
+  margin: var(--space-4) 0;
+  width: 100%;
 }
 
 .product-image-wrap {
