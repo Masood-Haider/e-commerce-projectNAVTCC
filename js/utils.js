@@ -263,12 +263,12 @@ export function initSplashIntro(forceShow = false) {
   // Smooth curtain split sequence
   setTimeout(() => {
     if (overlay) overlay.classList.add('animating');
-  }, 400);
+  }, 500);
 
   setTimeout(() => {
     if (overlay) overlay.classList.add('done');
     if (document.body) document.body.style.overflow = '';
-  }, 1550);
+  }, 2250);
 }
 
 // Auto-run splash intro immediately
