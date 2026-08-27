@@ -521,15 +521,14 @@
         const carryBadge = document.getElementById('cat-carry-stock');
 
         if (apparelBadge && metrics.apparel) {
-          apparelBadge.textContent = `${metrics.apparel.count} Items • ${metrics.apparel.stock} Units in Stock`;
+          apparelBadge.textContent = `${metrics.apparel.count} ${metrics.apparel.count === 1 ? 'Item' : 'Items'}`;
         }
         if (footwearBadge && metrics.footwear) {
-          footwearBadge.textContent = `${metrics.footwear.count} Items • ${metrics.footwear.stock} Units in Stock`;
+          footwearBadge.textContent = `${metrics.footwear.count} ${metrics.footwear.count === 1 ? 'Item' : 'Items'}`;
         }
         if (carryBadge) {
           const carryCount = (metrics.carry?.count || 0) + (metrics.accessories?.count || 0);
-          const carryStock = (metrics.carry?.stock || 0) + (metrics.accessories?.stock || 0);
-          carryBadge.textContent = `${carryCount} Items • ${carryStock} Units in Stock`;
+          carryBadge.textContent = `${carryCount} ${carryCount === 1 ? 'Item' : 'Items'}`;
         }
       } catch (err) {
         console.warn('[Index] Error updating category stock badges:', err);
