@@ -237,9 +237,111 @@
         <span class="text-primary font-medium" id="breadcrumb-title">Product Details</span>
       </nav>
 
-      <!-- Dynamic Product Container (Populated via JS) -->
+      <!-- Dynamic Product Container -->
       <div id="product-view-container">
-        <!-- Rendered by script -->
+        <div class="product-details-grid">
+          
+          <!-- Image Gallery Column -->
+          <div>
+            <div class="details-gallery-box" id="gallery-box">
+              <img 
+                src="../assets/product_tee.png" 
+                alt="Organic Heavyweight Tee" 
+                class="details-main-img" 
+                id="main-product-img"
+              >
+            </div>
+          </div>
+
+          <!-- Product Details & Purchase Form Column -->
+          <div class="product-info-panel">
+            
+            <div class="flex items-center gap-2 mb-2">
+              <span class="badge badge-accent" style="text-transform: uppercase;">Apparel</span>
+              <span class="badge badge-neutral">New</span>
+              <span class="text-xs text-secondary ml-auto">DOC ID: prod-101</span>
+            </div>
+
+            <h1 class="text-3xl font-bold mb-2">Organic Heavyweight Tee</h1>
+            
+            <!-- Rating & Reviews -->
+            <div class="flex items-center gap-2 mb-4 text-xs text-secondary">
+              <span class="font-bold text-primary">★ 4.9</span>
+              <span>•</span>
+              <span>(128 verified reviews)</span>
+            </div>
+
+            <div class="text-3xl font-bold mb-5">$48.00</div>
+
+            <p class="text-secondary mb-6" style="line-height: var(--leading-relaxed);">
+              Cut from heavyweight 240 GSM organic combed cotton for a relaxed, structured silhouette. Features double-needle stitched collar and cuffs for everyday durability and minimal shrinkage.
+            </p>
+
+            <hr style="border: 0; border-top: 1px solid var(--color-border); margin: var(--space-6) 0;">
+
+            <!-- Sizing Options -->
+            <div class="form-group mb-5">
+              <div class="flex justify-between items-center mb-2">
+                <label class="form-label mb-0">Select Option / Size</label>
+                <span class="text-xs text-secondary" id="active-size-label">M</span>
+              </div>
+              <div class="flex flex-wrap gap-2" id="sizes-group">
+                <button type="button" class="option-btn" data-size="S">S</button>
+                <button type="button" class="option-btn active" data-size="M">M</button>
+                <button type="button" class="option-btn" data-size="L">L</button>
+                <button type="button" class="option-btn" data-size="XL">XL</button>
+              </div>
+            </div>
+
+            <!-- Quantity & Actions -->
+            <div class="form-group mb-6">
+              <label class="form-label mb-2">Quantity</label>
+              <div class="flex items-center gap-4">
+                <div class="qty-counter">
+                  <button type="button" class="qty-btn" id="qty-minus" aria-label="Decrease quantity">&minus;</button>
+                  <input type="number" id="qty-val" class="qty-input" value="1" min="1" max="45" readonly>
+                  <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">&plus;</button>
+                </div>
+                <span class="text-xs text-secondary">45 units available in stock</span>
+              </div>
+            </div>
+
+            <!-- Primary Buttons -->
+            <div class="flex gap-3 mb-8">
+              <button id="detail-add-to-cart" class="btn btn-primary btn-lg" style="flex: 1.2;">
+                Add to Cart &bull; <span id="btn-price-calc">$48.00</span>
+              </button>
+              <button id="detail-buy-now" class="btn btn-secondary btn-lg" style="flex: 0.8;">
+                Buy Now
+              </button>
+            </div>
+
+            <!-- Specifications List -->
+            <div class="card card-body mb-6">
+              <h3 class="text-sm font-semibold mb-3">Material & Construction Details</h3>
+              <div class="flex flex-col gap-2">
+                <div class="spec-item"><span class="spec-dot"></span><span>100% Certified Organic Combed Cotton (240 GSM)</span></div>
+                <div class="spec-item"><span class="spec-dot"></span><span>Pre-shrunk fabric with enzyme wash finish</span></div>
+                <div class="spec-item"><span class="spec-dot"></span><span>Reinforced ribbed crewneck collar</span></div>
+                <div class="spec-item"><span class="spec-dot"></span><span>Ethically crafted in Porto, Portugal</span></div>
+              </div>
+            </div>
+
+            <!-- Guarantees -->
+            <div class="flex flex-col gap-2 text-xs text-secondary pt-2">
+              <div class="flex items-center justify-between">
+                <span>Free carbon-neutral shipping</span>
+                <span class="text-primary font-medium">Orders $100+</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Effortless returns</span>
+                <span class="text-primary font-medium">30 days guaranteed</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
       </div>
 
       <!-- Related Products Section -->
@@ -253,7 +355,81 @@
         </div>
 
         <div class="grid grid-cols-4 gap-6" id="related-products-grid">
-          <!-- Injected via JS using .filter() -->
+          
+          <!-- Related Card 1 -->
+          <article class="product-card" data-product-id="prod-102">
+            <a href="product-details.html?id=prod-102" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <span class="badge badge-neutral product-badge-overlay">Best Seller</span>
+              <img src="../assets/product_sneaker.png" alt="Minimalist Leather Sneaker" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Footwear</span>
+              <h3 class="product-name"><a href="product-details.html?id=prod-102" class="product-title-link">Minimalist Leather Sneaker</a></h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$165.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-102" data-name="Minimalist Leather Sneaker" data-price="165.00" data-category="Footwear" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Related Card 2 -->
+          <article class="product-card" data-product-id="prod-103">
+            <a href="product-details.html?id=prod-103" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <span class="badge badge-warning product-badge-overlay">Low Stock</span>
+              <img src="../assets/product_watch.png" alt="Ceramic Minimalist Watch" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Accessories</span>
+              <h3 class="product-name"><a href="product-details.html?id=prod-103" class="product-title-link">Ceramic Minimalist Watch</a></h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$220.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-103" data-name="Ceramic Minimalist Watch" data-price="220.00" data-category="Accessories" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Related Card 3 -->
+          <article class="product-card" data-product-id="prod-104">
+            <a href="product-details.html?id=prod-104" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <img src="../assets/product_backpack.png" alt="Modular Commuter Backpack" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Carry</span>
+              <h3 class="product-name"><a href="product-details.html?id=prod-104" class="product-title-link">Modular Commuter Backpack</a></h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$185.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-104" data-name="Modular Commuter Backpack" data-price="185.00" data-category="Carry" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Related Card 4 -->
+          <article class="product-card" data-product-id="prod-107">
+            <a href="product-details.html?id=prod-107" class="product-image-wrap" style="display: block; text-decoration: none;">
+              <img src="../assets/product_hoodie.png" alt="Heavyweight Loopback Hoodie" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category">Apparel</span>
+              <h3 class="product-name"><a href="product-details.html?id=prod-107" class="product-title-link">Heavyweight Loopback Hoodie</a></h3>
+              <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                <span class="product-price font-bold text-base">$120.00</span>
+                <button type="button" class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" data-id="prod-107" data-name="Heavyweight Loopback Hoodie" data-price="120.00" data-category="Apparel" aria-label="Add to Cart">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
         </div>
       </section>
 
