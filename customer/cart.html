@@ -198,7 +198,7 @@
 
   <!-- Main Content -->
   <main class="main-content">
-    <div class="container">
+    <div class="container" style="max-width: 860px; margin: 0 auto;">
       
       <div class="section-header mb-8">
         <div>
@@ -284,9 +284,11 @@
     } from '../js/cart.js';
     import { initNavbarAuth } from '../js/auth.js';
     import { formatCurrency, formatProductImage, showToast, initScrollReveal, triggerBadgePop, triggerCartBounce } from '../js/utils.js';
+    import { initCartDrawer } from '../js/cart-drawer.js';
 
-    // Initialize Navbar Auth State
+    // Initialize Navbar Auth & Quick Cart Drawer State
     initNavbarAuth();
+    initCartDrawer();
 
     // State for discounts
     let appliedDiscount = 0;

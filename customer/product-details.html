@@ -317,9 +317,11 @@
     import { initNavbarAuth } from '../js/auth.js';
     import { formatCurrency, formatProductImage, showToast, getQueryParams, initScrollReveal, triggerBadgePop, triggerCartBounce } from '../js/utils.js';
     import { attachProductCardListeners } from '../js/quick-view.js';
+    import { initCartDrawer } from '../js/cart-drawer.js';
 
-    // Initialize Navbar Auth State
+    // Initialize Navbar Auth State & Quick Cart Drawer
     initNavbarAuth();
+    initCartDrawer();
 
     // State
     let currentProduct = null;
