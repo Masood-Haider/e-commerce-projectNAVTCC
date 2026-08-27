@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AURA E-Commerce</title>
+  <title>AURA | Modern Minimalist Storefront</title>
+  <script>
+    window.location.replace('customer/index.html');
+  </script>
   <meta http-equiv="refresh" content="0; url=customer/index.html">
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/global.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #09090b;
+      height: 100vh;
+      overflow: hidden;
+    }
+  </style>
 </head>
-<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center;">
-  <div class="card card-body" style="max-width: 440px; padding: var(--space-8);">
-    <h1 class="text-2xl font-bold mb-2">AURA Store</h1>
-    <p class="text-sm text-secondary mb-6">Redirecting to storefront...</p>
-    <div class="flex flex-col gap-3">
-      <a href="customer/index.html" class="btn btn-primary">Go to Storefront &rarr;</a>
-      <a href="admin/dashboard.html" class="btn btn-secondary">Go to Admin Dashboard &rarr;</a>
-    </div>
-  </div>
+<body style="background-color: #09090b;">
 </body>
 </html>
