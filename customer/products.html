@@ -433,7 +433,7 @@
           const { id, title, price, category, image, badge } = product || {};
           return `
             <article class="product-card reveal-on-scroll" data-product-id="${id}">
-              <div class="product-image-wrap">
+              <a href="product-details.html?id=${id}" class="product-image-wrap" style="display: block; text-decoration: none;">
                 ${badge ? `<span class="badge ${badge === 'New' ? 'badge-accent' : badge === 'Low Stock' ? 'badge-warning' : 'badge-neutral'} product-badge-overlay">${badge}</span>` : ''}
                 <img src="${formatProductImage(image)}" alt="${title}" loading="lazy" onerror="this.src='../assets/product_tee.png'">
                 <button 
@@ -446,15 +446,18 @@
                 >
                   + Add
                 </button>
-              </div>
+              </a>
               <div class="product-content">
                 <span class="product-category">${category}</span>
                 <h3 class="product-name">
                   <a href="product-details.html?id=${id}" class="product-title-link">${title}</a>
                 </h3>
-                <div class="product-footer">
+                <div class="product-footer flex items-center justify-between gap-2 mt-3">
                   <span class="product-price">${formatCurrency(price)}</span>
-                  <button type="button" class="btn btn-outline btn-sm btn-quick-view">Preview</button>
+                  <div class="flex items-center gap-1">
+                    <button type="button" class="btn btn-ghost btn-sm btn-quick-view" style="font-size: 11px; padding: 4px 8px;" title="Quick preview modal">Preview</button>
+                    <a href="product-details.html?id=${id}" class="btn btn-outline btn-sm" style="font-size: 12px; padding: 4px 10px;">Details &rarr;</a>
+                  </div>
                 </div>
               </div>
             </article>

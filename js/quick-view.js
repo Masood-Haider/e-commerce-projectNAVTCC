@@ -329,18 +329,17 @@ export async function openQuickView(productId) {
 
 /**
  * Attaches click delegation to a container for product cards:
- * - Clicking the product card/image/view button opens the Quick View modal.
- * - Clicking directly on the product name/title link navigates to the full description page.
+ * - Clicking the image, card, or title navigates directly to full product-details.html.
  * - Clicking the + Add button executes quick cart addition.
+ * - Clicking the Preview button opens the Quick View modal.
  */
 export function attachProductCardListeners(container) {
   if (!container) return;
 
   container.addEventListener('click', (e) => {
-    // 1. Direct Title Link Click: Let browser navigate to product description page
-    const titleLink = e.target.closest('.product-name a, .product-title-link');
+    // 1. Direct Title Link or Explicit Details Link: Let browser navigate to product-details.html
+    const titleLink = e.target.closest('.product-name a, .product-title-link, a[href*="product-details.html"]');
     if (titleLink) {
-      // Allow default link navigation to product-details.html
       return;
     }
 
@@ -350,13 +349,25 @@ export function attachProductCardListeners(container) {
       return;
     }
 
-    // 3. Any other card click: Open the Quick View preview modal
-    const productCard = e.target.closest('.product-card');
-    if (productCard) {
+    // 3. Quick View / Preview Button ONLY
+    const quickViewBtn = e.target.closest('.btn-quick-view');
+    if (quickViewBtn) {
       e.preventDefault();
-      const productId = productCard.dataset.productId || productCard.getAttribute('data-product-id');
+      e.stopPropagation();
+      const productCard = e.target.closest('.product-card');
+      const productId = productCard?.dataset?.productId || productCard?.getAttribute('data-product-id');
       if (productId) {
         openQuickView(productId);
+      }
+      return;
+    }
+
+    // 4. Clicking the image or card body navigates directly to product description page
+    const productCard = e.target.closest('.product-card');
+    if (productCard) {
+      const productId = productCard.dataset.productId || productCard.getAttribute('data-product-id');
+      if (productId) {
+        window.location.href = `product-details.html?id=${productId}`;
       }
     }
   });
