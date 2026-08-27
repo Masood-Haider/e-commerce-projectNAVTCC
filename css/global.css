@@ -619,13 +619,14 @@ html.lenis, html.lenis body {
 #aura-splash-overlay {
   position: fixed;
   inset: 0;
-  z-index: 999999;
+  z-index: 99999999;
   pointer-events: all;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background-color: #09090b;
 }
 
 /* Top Curtain Panel */

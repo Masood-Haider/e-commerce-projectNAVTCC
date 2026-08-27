@@ -223,6 +223,11 @@ export function initSplashIntro(forceShow = false) {
 
   // Check if splash has already been shown in this browser session
   if (!forceShow && sessionStorage.getItem('aura_splash_shown')) {
+    const existing = document.getElementById('aura-splash-overlay');
+    if (existing) {
+      existing.style.display = 'none';
+      existing.remove();
+    }
     return;
   }
   sessionStorage.setItem('aura_splash_shown', 'true');
@@ -239,24 +244,34 @@ export function initSplashIntro(forceShow = false) {
       </div>
       <div class="aura-splash-curtain-bottom"></div>
     `;
-    document.body.appendChild(overlay);
+    if (document.body && document.body.firstChild) {
+      document.body.insertBefore(overlay, document.body.firstChild);
+    } else if (document.body) {
+      document.body.appendChild(overlay);
+    }
+  }
+
+  if (overlay) {
+    overlay.style.display = 'flex';
   }
 
   // Prevent scrolling during splash animation
-  document.body.style.overflow = 'hidden';
+  if (document.body) {
+    document.body.style.overflow = 'hidden';
+  }
 
   // Smooth curtain split sequence
   setTimeout(() => {
-    overlay.classList.add('animating');
-  }, 500);
+    if (overlay) overlay.classList.add('animating');
+  }, 400);
 
   setTimeout(() => {
-    overlay.classList.add('done');
-    document.body.style.overflow = '';
-  }, 1650);
+    if (overlay) overlay.classList.add('done');
+    if (document.body) document.body.style.overflow = '';
+  }, 1550);
 }
 
-// Auto-run splash intro on initial load
+// Auto-run splash intro immediately
 if (typeof window !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => initSplashIntro());
