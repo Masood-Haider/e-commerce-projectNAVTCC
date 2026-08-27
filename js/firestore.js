@@ -5,7 +5,7 @@
 // ==========================================================================
 
 import { db } from './firebase.js';
-import { PRODUCTS, getProductById as getStaticProductById } from './products-data.js';
+import { PRODUCTS, getProductById as getStaticProductById, getRelatedProducts as getStaticRelatedProducts } from './products-data.js';
 import { formatProductImage } from './utils.js';
 import {
   collection,
@@ -212,6 +212,22 @@ export async function getProductById(productId) {
  */
 export async function getFeaturedProducts() {
   return getProducts({ featuredOnly: true });
+}
+
+/**
+ * Get related products within same category, excluding the active product
+ */
+export async function getRelatedProducts(activeId, category, limitCount = 4) {
+  try {
+    const products = await getProducts({ category });
+    const filtered = products.filter(p => p.id !== activeId);
+    if (filtered && filtered.length > 0) {
+      return filtered.slice(0, limitCount);
+    }
+  } catch (err) {
+    console.warn('[Firestore] getRelatedProducts error:', err);
+  }
+  return getStaticRelatedProducts(activeId, category, limitCount);
 }
 
 /**

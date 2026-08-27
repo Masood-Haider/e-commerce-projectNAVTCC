@@ -353,11 +353,18 @@
       renderDetailSkeleton();
 
       const params = getQueryParams();
-      const productId = params.id || 'prod-101';
+      let productId = params.id || 'prod-101';
 
       try {
-        // Fetch document directly from Cloud Firestore
+        // Fetch document directly from Cloud Firestore or fallback dataset
         currentProduct = await getProductById(productId);
+
+        if (!currentProduct) {
+          const allProds = await getProducts();
+          if (allProds && allProds.length > 0) {
+            currentProduct = allProds[0];
+          }
+        }
 
         if (!currentProduct) {
           breadcrumbTitle.textContent = 'Product Not Found';
@@ -370,7 +377,7 @@
               </svg>
               <h1 class="text-2xl font-bold mb-2">Product Not Found</h1>
               <p class="text-sm text-secondary mb-6">
-                The product document was not found in Firestore or may have been archived.
+                The requested product document was not found in Firestore or may have been archived.
               </p>
               <a href="products.html" class="btn btn-primary">Return to Catalog &rarr;</a>
             </div>
