@@ -222,7 +222,7 @@
         </div>
         <div class="category-card-overlay"></div>
         <div class="category-card-content">
-          <span class="badge badge-neutral mb-2" style="background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.3);">42 Items</span>
+          <span class="badge badge-neutral mb-2" id="cat-apparel-stock" style="background: rgba(9,9,11,0.65); backdrop-filter: blur(4px); color: #fff; border-color: rgba(255,255,255,0.25);">Loading Stock...</span>
           <h3 class="category-card-title">Minimal Apparel</h3>
           <p class="category-card-subtitle">Organic tees, knitwear, and trousers</p>
         </div>
@@ -235,7 +235,7 @@
         </div>
         <div class="category-card-overlay"></div>
         <div class="category-card-content">
-          <span class="badge badge-neutral mb-2" style="background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.3);">18 Items</span>
+          <span class="badge badge-neutral mb-2" id="cat-footwear-stock" style="background: rgba(9,9,11,0.65); backdrop-filter: blur(4px); color: #fff; border-color: rgba(255,255,255,0.25);">Loading Stock...</span>
           <h3 class="category-card-title">Footwear</h3>
           <p class="category-card-subtitle">Full-grain leather sneakers & slip-ons</p>
         </div>
@@ -248,7 +248,7 @@
         </div>
         <div class="category-card-overlay"></div>
         <div class="category-card-content">
-          <span class="badge badge-neutral mb-2" style="background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.3);">26 Items</span>
+          <span class="badge badge-neutral mb-2" id="cat-carry-stock" style="background: rgba(9,9,11,0.65); backdrop-filter: blur(4px); color: #fff; border-color: rgba(255,255,255,0.25);">Loading Stock...</span>
           <h3 class="category-card-title">Carry & Accessories</h3>
           <p class="category-card-subtitle">Waterproof backpacks, watches, and wallets</p>
         </div>
@@ -504,7 +504,7 @@
        PAGE SCRIPTS (ES MODULES)
        ========================================================================== -->
   <script type="module">
-    import { getFeaturedProducts, subscribeToNewsletter } from '../js/firestore.js';
+    import { getFeaturedProducts, getCategoryStockMetrics, subscribeToNewsletter } from '../js/firestore.js';
     import { addToCart, getCartItemCount } from '../js/cart.js';
     import { initNavbarAuth } from '../js/auth.js';
     import { formatCurrency, formatProductImage, showToast, initScrollReveal, triggerBadgePop, triggerCartBounce } from '../js/utils.js';
@@ -512,6 +512,31 @@
 
     // Initialize Navbar Auth State
     initNavbarAuth();
+
+    // Update real-time category stock metrics from Cloud Firestore
+    async function updateCategoryRealtimeStock() {
+      try {
+        const metrics = await getCategoryStockMetrics();
+        const apparelBadge = document.getElementById('cat-apparel-stock');
+        const footwearBadge = document.getElementById('cat-footwear-stock');
+        const carryBadge = document.getElementById('cat-carry-stock');
+
+        if (apparelBadge && metrics.apparel) {
+          apparelBadge.textContent = `${metrics.apparel.count} Items • ${metrics.apparel.stock} Units in Stock`;
+        }
+        if (footwearBadge && metrics.footwear) {
+          footwearBadge.textContent = `${metrics.footwear.count} Items • ${metrics.footwear.stock} Units in Stock`;
+        }
+        if (carryBadge) {
+          const carryCount = (metrics.carry?.count || 0) + (metrics.accessories?.count || 0);
+          const carryStock = (metrics.carry?.stock || 0) + (metrics.accessories?.stock || 0);
+          carryBadge.textContent = `${carryCount} Items • ${carryStock} Units in Stock`;
+        }
+      } catch (err) {
+        console.warn('[Index] Error updating category stock badges:', err);
+      }
+    }
+    updateCategoryRealtimeStock();
 
     // Update cart badge
     function refreshCartBadge() {
@@ -565,33 +590,36 @@
           return;
         }
 
-        // Render products using destructuring, optional chaining, and map()
+        // Render products using clean product card structure
         featuredGrid.innerHTML = products.slice(0, 4).map(product => {
           const { id, title, price, category, image, badge } = product || {};
           return `
             <article class="product-card reveal-on-scroll" data-product-id="${id}">
-              <div class="product-image-wrap">
+              <a href="product-details.html?id=${id}" class="product-image-wrap" style="display: block; text-decoration: none;">
                 ${badge ? `<span class="badge ${badge === 'New' ? 'badge-accent' : badge === 'Low Stock' ? 'badge-warning' : 'badge-neutral'} product-badge-overlay">${badge}</span>` : ''}
                 <img src="${formatProductImage(image)}" alt="${title}" loading="lazy" onerror="this.src='../assets/product_tee.png'">
-                <button 
-                  class="btn btn-primary btn-sm product-quick-add" 
-                  data-id="${id}"
-                  data-name="${title}"
-                  data-price="${price}"
-                  data-category="${category}"
-                  aria-label="Quick Add to Cart"
-                >
-                  + Add
-                </button>
-              </div>
+              </a>
               <div class="product-content">
                 <span class="product-category">${category}</span>
                 <h3 class="product-name">
                   <a href="product-details.html?id=${id}" class="product-title-link">${title}</a>
                 </h3>
-                <div class="product-footer">
-                  <span class="product-price">${formatCurrency(price)}</span>
-                  <button type="button" class="btn btn-ghost btn-sm btn-quick-view">Preview</button>
+                <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                  <span class="product-price font-bold text-base">${formatCurrency(price)}</span>
+                  <button 
+                    type="button"
+                    class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" 
+                    data-id="${id}"
+                    data-name="${title}"
+                    data-price="${price}"
+                    data-category="${category}"
+                    aria-label="Add to Cart"
+                  >
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span>Add to Bag</span>
+                  </button>
                 </div>
               </div>
             </article>

@@ -641,5 +641,34 @@ export async function deleteNewsletterSubscriber(id) {
   }
 }
 
+/**
+ * Calculate real-time item count and available stock per category from Cloud Firestore
+ */
+export async function getCategoryStockMetrics() {
+  try {
+    const products = await getProducts();
+    const metrics = {
+      apparel: { count: 0, stock: 0 },
+      footwear: { count: 0, stock: 0 },
+      accessories: { count: 0, stock: 0 },
+      carry: { count: 0, stock: 0 }
+    };
+
+    products.forEach(p => {
+      let cat = (p?.category || 'general').toLowerCase().trim();
+      if (!metrics[cat]) {
+        metrics[cat] = { count: 0, stock: 0 };
+      }
+      metrics[cat].count += 1;
+      metrics[cat].stock += (parseInt(p?.stock, 10) || 0);
+    });
+
+    return metrics;
+  } catch (err) {
+    console.warn('[Firestore] Error calculating category stock metrics:', err);
+    return {};
+  }
+}
+
 // Initial Auto-Seed Trigger
 seedInitialProductsIfEmpty();

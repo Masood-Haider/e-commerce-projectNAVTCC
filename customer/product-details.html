@@ -691,18 +691,31 @@
           const { id, title, price, category: cat, image, badge } = product || {};
           return `
             <article class="product-card reveal-on-scroll" data-product-id="${id}">
-              <div class="product-image-wrap">
+              <a href="product-details.html?id=${id}" class="product-image-wrap" style="display: block; text-decoration: none;">
                 ${badge ? `<span class="badge badge-neutral product-badge-overlay">${badge}</span>` : ''}
                 <img src="${formatProductImage(image)}" alt="${title}" loading="lazy" onerror="this.src='../assets/product_tee.png'">
-              </div>
+              </a>
               <div class="product-content">
                 <span class="product-category">${cat}</span>
                 <h3 class="product-name">
                   <a href="product-details.html?id=${id}" class="product-title-link">${title}</a>
                 </h3>
-                <div class="product-footer">
-                  <span class="product-price">${formatCurrency(price)}</span>
-                  <button type="button" class="btn btn-outline btn-sm btn-quick-view">Preview</button>
+                <div class="product-footer flex items-center justify-between gap-2 mt-auto pt-3 border-t" style="border-color: var(--color-border-subtle);">
+                  <span class="product-price font-bold text-base">${formatCurrency(price)}</span>
+                  <button 
+                    type="button"
+                    class="btn btn-primary btn-sm product-quick-add flex items-center gap-1.5" 
+                    data-id="${id}"
+                    data-name="${title}"
+                    data-price="${price}"
+                    data-category="${cat}"
+                    aria-label="Add to Cart"
+                  >
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span>Add to Bag</span>
+                  </button>
                 </div>
               </div>
             </article>
