@@ -19,6 +19,7 @@
       justify-content: center;
       padding: var(--space-4);
       animation: fadeIn 0.2s ease-in-out;
+      overscroll-behavior: contain;
     }
 
     .modal-overlay.open {
@@ -28,14 +29,31 @@
     .modal-card {
       width: 100%;
       max-width: 680px;
-      max-height: 90vh;
+      max-height: 88vh;
       overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       background-color: var(--color-bg-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-xl);
       padding: var(--space-8);
       position: relative;
+    }
+
+    /* Smooth subtle scrollbars for modal */
+    .modal-card::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-card::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .modal-card::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: var(--radius-full);
+    }
+    .modal-card::-webkit-scrollbar-thumb:hover {
+      background: var(--color-text-muted);
     }
 
     .modal-header {
@@ -332,8 +350,8 @@
   <!-- ==========================================================================
        MODAL: ORDER DETAILS & STATUS UPDATER
        ========================================================================== -->
-  <div class="modal-overlay" id="order-details-modal">
-    <div class="modal-card" id="order-details-card">
+  <div class="modal-overlay" id="order-details-modal" data-lenis-prevent="true">
+    <div class="modal-card" id="order-details-card" data-lenis-prevent="true">
       
       <div class="modal-header">
         <div>
@@ -794,11 +812,18 @@
       detailTax.textContent = formatCurrency(pricing?.tax || 0);
       detailGrandTotal.textContent = formatCurrency(total || pricing?.grandTotal || 0);
 
+      document.body.style.overflow = 'hidden';
+      if (window.__auraLenis) window.__auraLenis.stop();
+
       detailsModal.classList.add('open');
+      const card = detailsModal.querySelector('.modal-card');
+      if (card) card.scrollTop = 0;
     }
 
     function closeDetailsModal() {
       detailsModal.classList.remove('open');
+      document.body.style.overflow = '';
+      if (window.__auraLenis) window.__auraLenis.start();
       activeSelectedOrder = null;
     }
 
@@ -835,6 +860,13 @@
 
     if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeDetailsModal);
     if (btnCloseDetails) btnCloseDetails.addEventListener('click', closeDetailsModal);
+
+    // Close on backdrop click
+    if (detailsModal) {
+      detailsModal.addEventListener('click', (e) => {
+        if (e.target === detailsModal) closeDetailsModal();
+      });
+    }
 
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeDetailsModal();

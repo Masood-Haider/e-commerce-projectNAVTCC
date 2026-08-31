@@ -69,6 +69,7 @@
       justify-content: center;
       padding: var(--space-4);
       animation: fadeIn 0.2s ease-in-out;
+      overscroll-behavior: contain;
     }
 
     .modal-overlay.open {
@@ -78,6 +79,10 @@
     .modal-card {
       width: 100%;
       max-width: 480px;
+      max-height: 88vh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       background-color: var(--color-bg-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-xl);
@@ -377,8 +382,8 @@
   </div>
 
   <!-- Remove / Delete Confirmation Modal -->
-  <div class="modal-overlay" id="delete-modal">
-    <div class="modal-card">
+  <div class="modal-overlay" id="delete-modal" data-lenis-prevent="true">
+    <div class="modal-card" data-lenis-prevent="true">
       <div class="modal-header">
         <div class="flex items-center gap-2">
           <div style="width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--color-danger-subtle); color: var(--color-danger); display: flex; align-items: center; justify-content: center;">
@@ -743,6 +748,10 @@
       if (deleteEmailDisplay) {
         deleteEmailDisplay.textContent = sub.email;
       }
+
+      document.body.style.overflow = 'hidden';
+      if (window.__auraLenis) window.__auraLenis.stop();
+
       if (deleteModal) {
         deleteModal.classList.add('open');
       }
@@ -753,6 +762,8 @@
       if (deleteModal) {
         deleteModal.classList.remove('open');
       }
+      document.body.style.overflow = '';
+      if (window.__auraLenis) window.__auraLenis.start();
     }
 
     if (modalCloseDeleteBtn) modalCloseDeleteBtn.addEventListener('click', closeDeleteModal);

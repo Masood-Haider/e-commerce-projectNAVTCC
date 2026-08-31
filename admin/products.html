@@ -19,6 +19,7 @@
       justify-content: center;
       padding: var(--space-4);
       animation: fadeIn 0.2s ease-in-out;
+      overscroll-behavior: contain;
     }
 
     .modal-overlay.open {
@@ -28,14 +29,31 @@
     .modal-card {
       width: 100%;
       max-width: 580px;
-      max-height: 90vh;
+      max-height: 88vh;
       overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       background-color: var(--color-bg-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-xl);
       padding: var(--space-8);
       position: relative;
+    }
+
+    /* Smooth subtle scrollbars for modal */
+    .modal-card::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-card::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .modal-card::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: var(--radius-full);
+    }
+    .modal-card::-webkit-scrollbar-thumb:hover {
+      background: var(--color-text-muted);
     }
 
     .modal-header {
@@ -299,8 +317,8 @@
   <!-- ==========================================================================
        MODAL: ADD / EDIT PRODUCT
        ========================================================================== -->
-  <div class="modal-overlay" id="product-modal">
-    <div class="modal-card">
+  <div class="modal-overlay" id="product-modal" data-lenis-prevent="true">
+    <div class="modal-card" data-lenis-prevent="true">
       
       <div class="modal-header">
         <div>
@@ -430,8 +448,8 @@
   <!-- ==========================================================================
        MODAL: DELETE CONFIRMATION
        ========================================================================== -->
-  <div class="modal-overlay" id="delete-modal">
-    <div class="modal-card" style="max-width: 440px; text-align: center;">
+  <div class="modal-overlay" id="delete-modal" data-lenis-prevent="true">
+    <div class="modal-card" data-lenis-prevent="true" style="max-width: 440px; text-align: center;">
       
       <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--color-danger-subtle); color: var(--color-danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
         <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -743,7 +761,14 @@
       modalTitle.textContent = 'Add New Product';
       modalSubtitle.textContent = 'Create a new catalog item in Cloud Firestore.';
       btnSubmitProduct.textContent = 'Add Product to Firestore';
+
+      // Lock background scrolling and stop momentum scroll
+      document.body.style.overflow = 'hidden';
+      if (window.__auraLenis) window.__auraLenis.stop();
+
       productModal.classList.add('open');
+      const card = productModal.querySelector('.modal-card');
+      if (card) card.scrollTop = 0;
     }
 
     function openEditModal(productId) {
@@ -769,11 +794,20 @@
       modalTitle.textContent = 'Edit Product';
       modalSubtitle.textContent = `Update document ID: ${product.id}`;
       btnSubmitProduct.textContent = 'Save Changes';
+
+      // Lock background scrolling and stop momentum scroll
+      document.body.style.overflow = 'hidden';
+      if (window.__auraLenis) window.__auraLenis.stop();
+
       productModal.classList.add('open');
+      const card = productModal.querySelector('.modal-card');
+      if (card) card.scrollTop = 0;
     }
 
     function closeModal() {
       productModal.classList.remove('open');
+      document.body.style.overflow = '';
+      if (window.__auraLenis) window.__auraLenis.start();
     }
 
     // Delete Modal Handlers
@@ -785,12 +819,16 @@
           🛡️ <strong>Safety Policy:</strong> Permanent catalog deletion is protected in Evaluator Mode to preserve live store data. Authorized for Super Admin (<code>${SUPER_ADMIN_EMAIL}</code>).
         </div>
       `;
+      document.body.style.overflow = 'hidden';
+      if (window.__auraLenis) window.__auraLenis.stop();
       deleteModal.classList.add('open');
     }
 
     function closeDeleteModal() {
       activeDeleteId = null;
       deleteModal.classList.remove('open');
+      document.body.style.overflow = '';
+      if (window.__auraLenis) window.__auraLenis.start();
     }
 
     // Save Form Handler (Add or Update)
@@ -932,6 +970,18 @@
     if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
     if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
     if (btnCancelDelete) btnCancelDelete.addEventListener('click', closeDeleteModal);
+
+    // Close modals on backdrop click
+    if (productModal) {
+      productModal.addEventListener('click', (e) => {
+        if (e.target === productModal) closeModal();
+      });
+    }
+    if (deleteModal) {
+      deleteModal.addEventListener('click', (e) => {
+        if (e.target === deleteModal) closeDeleteModal();
+      });
+    }
 
     // Close modals on escape key
     window.addEventListener('keydown', (e) => {

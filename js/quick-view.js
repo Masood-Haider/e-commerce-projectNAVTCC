@@ -33,9 +33,10 @@ function ensureModalDOM() {
   modalOverlay.setAttribute('role', 'dialog');
   modalOverlay.setAttribute('aria-modal', 'true');
   modalOverlay.setAttribute('aria-labelledby', 'qv-product-title');
+  modalOverlay.setAttribute('data-lenis-prevent', 'true');
 
   modalOverlay.innerHTML = `
-    <div class="quick-view-card" id="quick-view-card">
+    <div class="quick-view-card" id="quick-view-card" data-lenis-prevent="true">
       <button type="button" class="quick-view-close-btn" id="quick-view-close" aria-label="Close product preview">
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -75,6 +76,7 @@ export function closeQuickView() {
   if (modalOverlay) {
     modalOverlay.classList.remove('open');
     document.body.style.overflow = '';
+    if (window.__auraLenis) window.__auraLenis.start();
   }
 }
 
@@ -106,6 +108,7 @@ export async function openQuickView(productId) {
 
   modalOverlay.classList.add('open');
   document.body.style.overflow = 'hidden';
+  if (window.__auraLenis) window.__auraLenis.stop();
 
   try {
     const product = await getProductById(productId);

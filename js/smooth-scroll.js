@@ -19,7 +19,11 @@ export function initSmoothScroll() {
       smoothWheel: true,
       wheelMultiplier: 1.0,
       touchMultiplier: 1.5,
-      infinite: false
+      infinite: false,
+      prevent: (node) => {
+        if (!node || !node.closest) return false;
+        return node.closest('.modal-card, .modal-overlay, [data-lenis-prevent], .quick-cart-drawer, .quick-cart-items-list, select, textarea') !== null;
+      }
     });
 
     window.__auraLenis = lenis;

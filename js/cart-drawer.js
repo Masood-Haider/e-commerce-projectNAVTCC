@@ -15,8 +15,9 @@ export function initCartDrawer() {
     drawerBackdrop = document.createElement('div');
     drawerBackdrop.id = 'quick-cart-backdrop';
     drawerBackdrop.className = 'quick-cart-backdrop';
+    drawerBackdrop.setAttribute('data-lenis-prevent', 'true');
     drawerBackdrop.innerHTML = `
-      <aside class="quick-cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping Cart">
+      <aside class="quick-cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping Cart" data-lenis-prevent="true">
         <div class="quick-cart-header">
           <div class="flex items-center gap-2">
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,7 +38,7 @@ export function initCartDrawer() {
           </div>
         </div>
 
-        <div id="qc-items-list" class="quick-cart-items-list">
+        <div id="qc-items-list" class="quick-cart-items-list" data-lenis-prevent="true">
           <!-- Rendered dynamically -->
         </div>
 
@@ -97,12 +98,14 @@ export function openCartDrawer() {
   renderDrawerContent();
   drawerBackdrop.classList.add('open');
   document.body.style.overflow = 'hidden';
+  if (window.__auraLenis) window.__auraLenis.stop();
 }
 
 export function closeCartDrawer() {
   if (!drawerBackdrop) return;
   drawerBackdrop.classList.remove('open');
   document.body.style.overflow = '';
+  if (window.__auraLenis) window.__auraLenis.start();
 }
 
 function renderDrawerContent() {
